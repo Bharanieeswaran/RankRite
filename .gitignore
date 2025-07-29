@@ -1,9 +1,13 @@
+# Ignore virtual environment
 venv/
+
+# Byte-compiled / cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-instance/
-.env
+*.py[cod]
+
+# OS files
 .DS_Store
-*.db
+
+# Logs and env
+*.log
+.env
