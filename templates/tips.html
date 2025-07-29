@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Tips - RankRite{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex align-items-center mb-4">
+            <i class="bi bi-lightbulb text-warning fs-2 me-3"></i>
+            <div>
+                <h1 class="fw-bold mb-1">Resume Tips & Best Practices</h1>
+                <p class="text-muted mb-0">Expert advice to help you create a winning resume</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Navigation -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Quick Navigation</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="#formatting" class="btn btn-sm btn-outline-primary">Formatting</a>
+                    <a href="#content" class="btn btn-sm btn-outline-primary">Content</a>
+                    <a href="#keywords" class="btn btn-sm btn-outline-primary">Keywords</a>
+                    <a href="#sections" class="btn btn-sm btn-outline-primary">Sections</a>
+                    <a href="#mistakes" class="btn btn-sm btn-outline-danger">Common Mistakes</a>
+                    <a href="#ats" class="btn btn-sm btn-outline-success">ATS Optimization</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Resume Formatting -->
+        <section id="formatting" class="mb-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-layout-text-window me-2"></i>Resume Formatting
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="text-success">✅ Do's</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Use a clean, professional font (Arial, Calibri, Times New Roman)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Keep font size between 10-12 points
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Use consistent formatting throughout
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Maintain proper margins (0.5-1 inch)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Use bullet points for easy scanning
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Keep it to 1-2 pages maximum
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger">❌ Don'ts</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-x-circle text-danger me-2"></i>
+                                    Don't use fancy fonts or colors
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-x-circle text-danger me-2"></i>
+                                    Avoid text smaller than 10pt
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-x-circle text-danger me-2"></i>
+                                    Don't overcrowd the page
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-x-circle text-danger me-2"></i>
+                                    Avoid using tables or complex layouts
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-x-circle text-danger me-2"></i>
+                                    Don't use graphics or images
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-x-circle text-danger me-2"></i>
+                                    Never exceed 3 pages
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Strategy -->
+        <section id="content" class="mb-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-file-text me-2"></i>Content Strategy
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Key Principles</h6>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="bg-light rounded p-3">
+                                <h6 class="text-primary">
+                                    <i class="bi bi-bullseye me-2"></i>Be Specific
+                                </h6>
+                                <p class="small mb-0">Use specific numbers, percentages, and metrics to quantify your achievements.</p>
+                                <div class="mt-2">
+                                    <small class="text-success fw-bold">Good:</small> "Increased sales by 25% in Q3"<br>
+                                    <small class="text-danger fw-bold">Bad:</small> "Responsible for sales"
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light rounded p-3">
+                                <h6 class="text-info">
+                                    <i class="bi bi-lightning me-2"></i>Action-Oriented
+                                </h6>
+                                <p class="small mb-0">Start bullet points with strong action verbs.</p>
+                                <div class="mt-2">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span class="badge bg-info-subtle text-info">Achieved</span>
+                                        <span class="badge bg-info-subtle text-info">Developed</span>
+                                        <span class="badge bg-info-subtle text-info">Implemented</span>
+                                        <span class="badge bg-info-subtle text-info">Led</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light rounded p-3">
+                                <h6 class="text-warning">
+                                    <i class="bi bi-target me-2"></i>Relevant
+                                </h6>
+                                <p class="small mb-0">Tailor your resume for each job application.</p>
+                                <small class="text-muted">Focus on experiences that match the job requirements.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light rounded p-3">
+                                <h6 class="text-secondary">
+                                    <i class="bi bi-clock me-2"></i>Recent
+                                </h6>
+                                <p class="small mb-0">Emphasize recent and relevant experiences.</p>
+                                <small class="text-muted">Last 10-15 years are most important.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Keywords & ATS -->
+        <section id="keywords" class="mb-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-key me-2"></i>Keywords & ATS Optimization
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Did you know?</strong> 75% of resumes are filtered out by ATS before reaching human recruiters.
+                    </div>
+                    
+                    <h6 class="fw-bold mb-3">ATS-Friendly Tips</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-search text-primary fs-4 me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-1">Use Job-Specific Keywords</h6>
+                                    <p class="small text-muted mb-0">Include keywords from the job description naturally throughout your resume.</p>
+                                </div>
+                            </div>
+                        </div>

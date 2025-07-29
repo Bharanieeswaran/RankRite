@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Trends - RankRite{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="text-center mb-4">
+                <h1 class="display-5 text-success">📈 Resume Trends in 2025</h1>
+                <p class="text-muted">Stay ahead by understanding what employers seek today.</p>
+            </div>
+            <div class="card glassmorphism p-4 shadow rounded-4 border-0">
+                <h4>💼 Top In-Demand Skills:</h4>
+                <ul>
+                    <li>🔧 Python, JavaScript, SQL</li>
+                    <li>🧠 Machine Learning & AI</li>
+                    <li>☁️ Cloud Platforms (AWS, Azure)</li>
+                    <li>🛠 DevOps Tools (Docker, Kubernetes)</li>
+                    <li>🎨 UI/UX Design and Figma</li>
+                </ul>
+                <h4 class="mt-4">📄 Resume Design Tips:</h4>
+                <ul>
+                    <li>Keep it clean, clear, and 1-2 pages max</li>
+                    <li>Use bullet points and strong action verbs</li>
+                    <li>Highlight achievements with data</li>
+                    <li>Include links to GitHub, LinkedIn, Portfolio</li>
+                </ul>
+                <h4 class="mt-4">🔍 ATS Optimization:</h4>
+                <ul>
+                    <li>Use job-specific keywords from the JD</li>
+                    <li>Don’t use too many graphics or tables</li>
+                    <li>Stick to standard section headings</li>
+                </ul>
+                <p class="mt-4">
+                    RankRite helps you stay updated with trends and tailor your resume for maximum impact.
+                </p>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('tips') }}" class="btn btn-outline-success me-2">
+                        <i class="bi bi-lightbulb"></i> Resume Tips
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-house me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

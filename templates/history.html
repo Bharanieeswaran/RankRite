@@ -1,0 +1,986 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis History - RankRite{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-clock-history text-primary fs-2 me-3"></i>
+                <div>
+                    <h1 class="fw-bold mb-1">Analysis History</h1>
+                    <p class="text-muted mb-0">View and manage your previous resume analyses</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-danger" id="clear-history">
+                    <i class="bi bi-trash me-2"></i>Clear History
+                </button>
+                <button class="btn btn-outline-primary" id="export-history">
+                    <i class="bi bi-download me-2"></i>Export All
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="search-history" class="form-label small">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="search-history" 
+                                   placeholder="Search by filename or job title...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filter-type" class="form-label small">Type</label>
+                        <select class="form-select" id="filter-type">
+                            <option value="">All Types</option>
+                            <option value="single">Single Resume</option>
+                            <!-- Add more options if you implement distinct types like 'comparison', 'multiple' -->
+                            <!-- <option value="comparison">Comparison</option> -->
+                            <!-- <option value="multiple">Multiple Analysis</option> -->
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filter-date" class="form-label small">Date Range</label>
+                        <select class="form-select" id="filter-date">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" id="reset-filters">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row text-center g-3">
+                    <div class="col-4">
+                        <div class="text-primary">
+                            <h4 class="mb-1" id="total-analyses">0</h4>
+                            <small class="text-muted">Total</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-success">
+                            <h4 class="mb-1" id="this-month">0</h4>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-info">
+                            <h4 class="mb-1" id="avg-score">0%</h4>
+                            <small class="text-muted">Avg Score</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- History Content -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-list me-2"></i>Analysis History
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary" id="toggle-view-history">
+                            <i class="bi bi-grid me-1"></i>Grid View
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-sort-down me-1"></i>Sort
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-sort="date-desc">Newest First</a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="date-asc">Oldest First</a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="score-desc">Highest Score</a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="score-asc">Lowest Score</a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="name-asc">Name A-Z</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Table View (Default) -->
+                <div id="history-table-view">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" class="form-check-input" id="select-all">
+                                    </th>
+                                    <th>Resume/Analysis</th>
+                                    <th>Type</th>
+                                    <th>Score</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <!-- Dynamic history entries will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Grid View -->
+                <div id="history-grid-view" style="display: none;">
+                    <div class="row g-4" id="history-grid">
+                        <!-- Dynamic grid cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="History pagination" class="mt-4">
+                    <ul class="pagination justify-content-center" id="history-pagination">
+                        <!-- Dynamic pagination will be inserted here -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Empty State -->
+<div id="empty-history" class="text-center py-5" style="display: none;">
+    <i class="bi bi-clock-history text-muted" style="font-size: 4rem;"></i>
+    <h4 class="text-muted mt-3">No analysis history found</h4>
+    <p class="text-muted">Start analyzing resumes to see your history here</p>
+    <a href="{{ url_for('check_resume') }}" class="btn btn-primary">
+        <i class="bi bi-file-earmark-check me-2"></i>Check Resume Now
+    </a>
+</div>
+
+<!-- History Detail Modal -->
+<div class="modal fade" id="historyDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historyDetailModalLabel">Analysis Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="history-detail-body">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" id="rerun-analysis">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Re-run Analysis
+                </button>
+                <button type="button" class="btn btn-outline-success" id="export-detail">
+                    <i class="bi bi-download me-2"></i>Export
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal fade" id="bulkActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Actions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select an action for <span id="selected-count">0</span> selected items:</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-success" id="bulk-export">
+                        <i class="bi bi-download me-2"></i>Export Selected
+                    </button>
+                    <button class="btn btn-outline-danger" id="bulk-delete">
+                        <i class="bi bi-trash me-2"></i>Delete Selected
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/spinner.js') }}"></script>
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script>
+let historyData = [];
+let filteredHistory = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let selectedItems = new Set();
+
+// Load history data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadHistoryData();
+
+    // Event listeners for filters and sorting
+    document.getElementById('search-history').addEventListener('input', applyFilters);
+    document.getElementById('filter-type').addEventListener('change', applyFilters);
+    document.getElementById('filter-date').addEventListener('change', applyFilters);
+    document.getElementById('reset-filters').addEventListener('click', resetFilters);
+
+    document.getElementById('toggle-view-history').addEventListener('click', toggleView);
+
+    document.querySelectorAll('[data-sort]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sortBy = this.getAttribute('data-sort');
+            sortHistory(sortBy);
+        });
+    });
+
+    document.getElementById('select-all').addEventListener('change', toggleSelectAll);
+    document.getElementById('clear-history').addEventListener('click', clearAllHistory);
+    document.getElementById('export-history').addEventListener('click', exportAllHistory);
+    document.getElementById('bulk-export').addEventListener('click', bulkExport);
+    document.getElementById('bulk-delete').addEventListener('click', bulkDelete);
+    document.getElementById('rerun-analysis').addEventListener('click', rerunAnalysis);
+    document.getElementById('export-detail').addEventListener('click', exportDetail);
+});
+
+function loadHistoryData() {
+    showSpinner('Loading history...', 'Fetching your analysis history');
+    
+    fetch('/api/history')
+        .then(response => {
+            if (!response.ok) {
+                // Try to parse JSON error message if available
+                return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideSpinner();
+            if (data.success) {
+                historyData = data.history;
+                filteredHistory = [...historyData]; // Initialize filtered history with all data
+                updateHistoryDisplay();
+                updateStats();
+            } else {
+                showEmptyState();
+                showToast(data.error || 'Failed to load history.', 'error');
+            }
+        })
+        .catch(error => {
+            hideSpinner();
+            console.error('Error loading history:', error);
+            showEmptyState();
+            showToast('An error occurred while loading history: ' + error.message, 'error');
+        });
+}
+
+function updateHistoryDisplay() {
+    if (filteredHistory.length === 0) {
+        showEmptyState();
+        return;
+    }
+    
+    document.querySelector('.card').style.display = 'block'; // Show the main card containing history
+    document.getElementById('empty-history').style.display = 'none';
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageData = filteredHistory.slice(startIndex, endIndex);
+    
+    updateHistoryTable(pageData);
+    updateHistoryGrid(pageData);
+    updatePagination();
+    updateCheckboxStates(); // Ensure checkboxes reflect selectedItems
+}
+
+function updateHistoryTable(data) {
+    const tbody = document.getElementById('history-tbody');
+    tbody.innerHTML = '';
+    
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        const typeIcon = getTypeIcon(item.type);
+        const typeBadge = getTypeBadge(item.type);
+        
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" class="form-check-input item-checkbox" value="${item.id}" ${selectedItems.has(item.id.toString()) ? 'checked' : ''}>
+            </td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <i class="bi ${typeIcon} fs-4 me-3 text-primary"></i>
+                    <div>
+                        <div class="fw-semibold">
+                            ${item.filename || 'Analysis'}
+                            ${item.unique_filename ? `
+                                <a href="/download_resume/${item.unique_filename}" class="btn btn-sm btn-outline-info ms-2" title="Download Original Resume">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                        <small class="text-muted">${item.job_title || 'Job Description'}</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="badge ${typeBadge}">${item.type}</span>
+            </td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="progress me-2" style="width: 50px; height: 6px;">
+                        <div class="progress-bar ${getScoreColor(item.score)}" 
+                             style="width: ${item.score}%"></div>
+                    </div>
+                    <span class="fw-bold">${item.score}%</span>
+                </div>
+            </td>
+            <td>
+                <div>
+                    <div>${formatDate(item.created_at)}</div>
+                    <small class="text-muted">${formatTime(item.created_at)}</small>
+                </div>
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="viewHistoryDetail('${item.id}')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-success" onclick="exportHistoryItem('${item.id}')">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="deleteHistoryItem('${item.id}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    updateCheckboxListeners();
+}
+
+function updateHistoryGrid(data) {
+    const grid = document.getElementById('history-grid');
+    grid.innerHTML = '';
+    
+    data.forEach(item => {
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+        
+        const typeIcon = getTypeIcon(item.type);
+        const typeBadge = getTypeBadge(item.type);
+        
+        col.innerHTML = `
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <input type="checkbox" class="form-check-input item-checkbox" value="${item.id}" ${selectedItems.has(item.id.toString()) ? 'checked' : ''}>
+                        <span class="badge ${typeBadge}">${item.type}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="bi ${typeIcon} fs-1 text-primary mb-2"></i>
+                        <h6 class="fw-bold mb-1">
+                            ${item.original_filename || 'Analysis'}
+                            ${item.unique_filename ? `
+                                <a href="/download_resume/${item.unique_filename}" class="btn btn-sm btn-outline-info ms-2" title="Download Original Resume">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            ` : ''}
+                        </h6>
+                        <small class="text-muted">${item.job_title || 'Job Description'}</small>
+                    </div>
+                    
+                    <div class="text-center mb-3">
+                        <div class="bg-primary bg-opacity-10 rounded p-3">
+                            <h4 class="text-primary mb-0">${item.score}%</h4>
+                            <small class="text-muted">Match Score</small>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-muted small">
+                        <div>${formatDate(item.created_at)}</div>
+                        <div>${formatTime(item.created_at)}</div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="viewHistoryDetail('${item.id}')">
+                            <i class="bi bi-eye me-2"></i>View Details
+                        </button>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-success" onclick="exportHistoryItem('${item.id}')">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteHistoryItem('${item.id}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        grid.appendChild(col);
+    });
+    
+    updateCheckboxListeners();
+}
+
+function updatePagination() {
+    const pagination = document.getElementById('history-pagination');
+    const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let html = '';
+    
+    // Previous button
+    html += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+        </li>
+    `;
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        // Show first, last, and up to 2 pages around current
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            html += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                </li>
+            `;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            // Add ellipsis
+            html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+    
+    // Next button
+    html += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+        </li>
+    `;
+    
+    pagination.innerHTML = html;
+}
+
+function changePage(page) {
+    const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        updateHistoryDisplay();
+    }
+}
+
+function updateStats() {
+    const totalAnalyses = historyData.length;
+    const now = new Date();
+    const thisMonth = historyData.filter(item => {
+        const itemDate = new Date(item.created_at);
+        return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+    }).length;
+    
+    const avgScore = totalAnalyses > 0 ? 
+        Math.round(historyData.reduce((sum, item) => sum + item.score, 0) / totalAnalyses) : 0;
+    
+    document.getElementById('total-analyses').textContent = totalAnalyses;
+    document.getElementById('this-month').textContent = thisMonth;
+    document.getElementById('avg-score').textContent = avgScore + '%';
+}
+
+function showEmptyState() {
+    document.querySelector('.card').style.display = 'none'; // Hide the main card
+    document.getElementById('empty-history').style.display = 'block';
+}
+
+function getTypeIcon(type) {
+    switch(type) {
+        case 'single': return 'bi-file-earmark-check';
+        case 'comparison': return 'bi-file-earmark-diff';
+        case 'multiple': return 'bi-files';
+        default: return 'bi-file-earmark';
+    }
+}
+
+function getTypeBadge(type) {
+    switch(type) {
+        case 'single': return 'bg-primary';
+        case 'comparison': return 'bg-success';
+        case 'multiple': return 'bg-info';
+        default: return 'bg-secondary';
+    }
+}
+
+function getScoreColor(score) {
+    if (score >= 90) return 'bg-success'; // Excellent Match
+    if (score >= 75) return 'bg-primary'; // Strong Match
+    if (score >= 50) return 'bg-warning'; // Moderate Match
+    return 'bg-danger'; // Needs Improvement
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+}
+
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function viewHistoryDetail(id) {
+    const item = historyData.find(h => h.id.toString() === id.toString()); // Ensure string comparison
+    if (!item) {
+        showToast('Analysis details not found.', 'error');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('historyDetailModal'));
+    document.getElementById('historyDetailModalLabel').textContent = `Analysis Details - ${item.original_filename || item.filename || 'Analysis'}`;
+    
+    const modalBody = document.getElementById('history-detail-body');
+    modalBody.innerHTML = `
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h6>Analysis Information</h6>
+                <p class="mb-1"><strong>Type:</strong> ${item.type}</p>
+                <p class="mb-1"><strong>Filename:</strong> ${item.original_filename || item.filename || 'N/A'}</p>
+                <p class="mb-1"><strong>Job Title:</strong> ${item.job_title || 'N/A'}</p>
+                <p class="mb-1"><strong>Date:</strong> ${formatDate(item.created_at)} ${formatTime(item.created_at)}</p>
+                <p class="mb-1"><strong>Match Level:</strong> <span class="badge ${getScoreColor(item.score)}">${item.rank_level}</span></p>
+            </div>
+            <div class="col-md-6">
+                <h6>Score Breakdown</h6>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <small>Overall Score</small>
+                        <small>${item.score}%</small>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar ${getScoreColor(item.score)}" style="width: ${item.score}%"></div>
+                    </div>
+                </div>
+                ${item.breakdown ? Object.entries(item.breakdown).map(([key, value]) => `
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-capitalize">${key.replace('_', ' ')}</small>
+                            <small>${value}%</small>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar ${getScoreColor(value)}" style="width: ${value}%"></div>
+                        </div>
+                    </div>
+                `).join('') : ''}
+            </div>
+        </div>
+        
+        ${item.recommendations && item.recommendations.length > 0 ? `
+            <div class="mb-4">
+                <h6>Improvement Suggestions</h6>
+                <ul class="list-group list-group-flush">
+                    ${item.recommendations.map(rec => `
+                        <li class="list-group-item border-0 px-0">
+                            <i class="bi bi-arrow-right text-primary me-2"></i>${rec}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+
+        ${item.skill_gap_suggestions && item.skill_gap_suggestions.length > 0 ? `
+            <div class="mb-4">
+                <h6>Skill Gap Suggestions</h6>
+                <ul class="list-group list-group-flush">
+                    ${item.skill_gap_suggestions.map(rec => `
+                        <li class="list-group-item border-0 px-0">
+                            <i class="bi bi-arrow-right text-warning me-2"></i>${rec}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        ` : ''}
+        
+        ${item.matched_skills && item.matched_skills.length > 0 ? `
+            <div class="mb-4">
+                <h6>Matched Skills</h6>
+                <div class="d-flex flex-wrap gap-1">
+                    ${item.matched_skills.map(skill => `
+                        <span class="badge bg-success-subtle text-success border border-success">${skill}</span>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+
+        ${item.missing_skills && item.missing_skills.length > 0 ? `
+            <div class="mb-4">
+                <h6>Missing Skills</h6>
+                <div class="d-flex flex-wrap gap-1">
+                    ${item.missing_skills.map(skill => `
+                        <span class="badge bg-danger-subtle text-danger border border-danger">${skill}</span>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+    `;
+    
+    // Set data attributes for rerun and export buttons in modal footer
+    document.getElementById('rerun-analysis').setAttribute('data-analysis-id', item.id);
+    document.getElementById('rerun-analysis').setAttribute('data-resume-id', item.resume_id);
+    document.getElementById('rerun-analysis').setAttribute('data-job-description-id', item.job_description_id);
+
+    document.getElementById('export-detail').setAttribute('data-analysis-id', item.id);
+
+    modal.show();
+}
+
+function exportHistoryItem(id) {
+    // This button should likely trigger the PDF export for the specific analysis
+    window.location.href = `/export_pdf/${id}`;
+}
+
+function deleteHistoryItem(id) {
+    if (confirm('Are you sure you want to delete this analysis? This cannot be undone.')) {
+        showSpinner('Deleting analysis...', 'Please wait.');
+        fetch(`/api/history/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideSpinner();
+                if (data.success) {
+                    historyData = historyData.filter(item => item.id.toString() !== id.toString());
+                    applyFilters(); // Re-apply filters to update filteredHistory and display
+                    updateStats();
+                    showToast('Analysis deleted successfully!', 'success');
+                } else {
+                    showToast(data.error || 'Failed to delete analysis.', 'error');
+                }
+            })
+            .catch(error => {
+                hideSpinner();
+                console.error('Error:', error);
+                showToast('An error occurred while deleting: ' + error.message, 'error');
+            });
+    }
+}
+
+// Search and filter functionality
+function applyFilters() {
+    const searchTerm = document.getElementById('search-history').value.toLowerCase();
+    const typeFilter = document.getElementById('filter-type').value;
+    const dateFilter = document.getElementById('filter-date').value;
+    
+    filteredHistory = historyData.filter(item => {
+        // Search filter
+        const matchesSearch = !searchTerm || 
+            (item.filename && item.filename.toLowerCase().includes(searchTerm)) ||
+            (item.job_title && item.job_title.toLowerCase().includes(searchTerm));
+        
+        // Type filter
+        const matchesType = !typeFilter || item.type === typeFilter;
+        
+        // Date filter
+        let matchesDate = true;
+        if (dateFilter) {
+            const itemDate = new Date(item.created_at);
+            const now = new Date();
+            
+            switch(dateFilter) {
+                case 'today':
+                    matchesDate = itemDate.toDateString() === now.toDateString();
+                    break;
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    matchesDate = itemDate >= weekAgo;
+                    break;
+                case 'month':
+                    matchesDate = itemDate.getMonth() === now.getMonth() && 
+                                 itemDate.getFullYear() === now.getFullYear();
+                    break;
+                case 'year':
+                    matchesDate = itemDate.getFullYear() === now.getFullYear();
+                    break;
+            }
+        }
+        
+        return matchesSearch && matchesType && matchesDate;
+    });
+    
+    currentPage = 1;
+    updateHistoryDisplay();
+}
+
+function resetFilters() {
+    document.getElementById('search-history').value = '';
+    document.getElementById('filter-type').value = '';
+    document.getElementById('filter-date').value = '';
+    applyFilters();
+}
+
+// Toggle view functionality
+function toggleView() {
+    const tableView = document.getElementById('history-table-view');
+    const gridView = document.getElementById('history-grid-view');
+    const button = document.getElementById('toggle-view-history');
+    
+    if (tableView.style.display !== 'none') {
+        tableView.style.display = 'none';
+        gridView.style.display = 'block';
+        button.innerHTML = '<i class="bi bi-table me-1"></i>Table View';
+    } else {
+        tableView.style.display = 'block';
+        gridView.style.display = 'none';
+        button.innerHTML = '<i class="bi bi-grid me-1"></i>Grid View';
+    }
+}
+
+// Checkbox functionality
+function updateCheckboxListeners() {
+    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+        checkbox.removeEventListener('change', handleItemCheckboxChange); // Prevent duplicate listeners
+        checkbox.addEventListener('change', handleItemCheckboxChange);
+    });
+}
+
+function handleItemCheckboxChange() {
+    if (this.checked) {
+        selectedItems.add(this.value);
+    } else {
+        selectedItems.delete(this.value);
+    }
+    updateBulkActionsModalCount();
+    updateSelectAllCheckboxState();
+}
+
+function toggleSelectAll() {
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+        if (this.checked) {
+            selectedItems.add(checkbox.value);
+        } else {
+            selectedItems.delete(checkbox.value);
+        }
+    });
+    updateBulkActionsModalCount();
+}
+
+function updateSelectAllCheckboxState() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    
+    if (itemCheckboxes.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        return;
+    }
+
+    const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
+    const anyChecked = Array.from(itemCheckboxes).some(cb => cb.checked);
+
+    if (allChecked) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else if (anyChecked) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    }
+}
+
+
+function updateBulkActionsModalCount() {
+    document.getElementById('selected-count').textContent = selectedItems.size;
+    if (selectedItems.size > 0) {
+        const bulkModal = new bootstrap.Modal(document.getElementById('bulkActionsModal'));
+        // Only show if not already shown, or if the user explicitly clicks a bulk action button
+        // For now, let's just update the count. Showing the modal automatically might be annoying.
+    }
+}
+
+
+// Sorting functionality
+function sortHistory(sortBy) {
+    switch(sortBy) {
+        case 'date-desc':
+            filteredHistory.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            break;
+        case 'date-asc':
+            filteredHistory.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            break;
+        case 'score-desc':
+            filteredHistory.sort((a, b) => b.score - a.score);
+            break;
+        case 'score-asc':
+            filteredHistory.sort((a, b) => a.score - b.score);
+            break;
+        case 'name-asc':
+            filteredHistory.sort((a, b) => (a.filename || '').localeCompare(b.filename || ''));
+            break;
+    }
+    
+    currentPage = 1;
+    updateHistoryDisplay();
+}
+
+// Clear history
+function clearAllHistory() {
+    if (confirm('Are you sure you want to clear all history? This action cannot be undone.')) {
+        showSpinner('Clearing history...', 'Please wait.');
+        fetch('/api/history/clear', { method: 'DELETE' })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideSpinner();
+                if (data.success) {
+                    historyData = [];
+                    filteredHistory = [];
+                    selectedItems.clear();
+                    showEmptyState();
+                    updateStats();
+                    showToast('History cleared successfully!', 'success');
+                } else {
+                    showToast(data.error || 'Failed to clear history.', 'error');
+                }
+            })
+            .catch(error => {
+                hideSpinner();
+                console.error('Error:', error);
+                showToast('An error occurred while clearing history: ' + error.message, 'error');
+            });
+    }
+}
+
+// Export history (all)
+function exportAllHistory() {
+    showToast('Export all history feature coming soon!', 'info');
+    // You would typically trigger a Flask route here that generates a CSV/PDF of all history
+    // window.location.href = '/export_all_history_csv';
+}
+
+// Bulk actions
+function bulkExport() {
+    if (selectedItems.size === 0) {
+        showToast('Please select items to export.', 'warning');
+        return;
+    }
+    showToast('Bulk export feature coming soon!', 'info');
+    // You would send selectedItems to a Flask route for bulk export
+    // fetch('/api/history/bulk_export', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ ids: Array.from(selectedItems) })
+    // });
+}
+
+function bulkDelete() {
+    if (selectedItems.size === 0) {
+        showToast('Please select items to delete.', 'warning');
+        return;
+    }
+    if (confirm(`Are you sure you want to delete ${selectedItems.size} selected items? This cannot be undone.`)) {
+        showSpinner('Deleting selected items...', 'Please wait.');
+        fetch('/api/history/bulk_delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: Array.from(selectedItems) })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideSpinner();
+            if (data.success) {
+                // Remove deleted items from historyData and filteredHistory
+                historyData = historyData.filter(item => !selectedItems.has(item.id.toString()));
+                applyFilters(); // Re-apply filters to update filteredHistory and display
+                selectedItems.clear();
+                updateStats();
+                showToast('Selected analyses deleted successfully!', 'success');
+            } else {
+                showToast(data.error || 'Failed to delete selected analyses.', 'error');
+            }
+        })
+        .catch(error => {
+            hideSpinner();
+            console.error('Error:', error);
+            showToast('An error occurred during bulk delete: ' + error.message, 'error');
+        });
+    }
+}
+
+// Re-run analysis from modal
+function rerunAnalysis() {
+    const analysisId = this.getAttribute('data-analysis-id');
+    const resumeId = this.getAttribute('data-resume-id');
+    const jobDescriptionId = this.getAttribute('data-job-description-id');
+
+    if (!analysisId || !resumeId || !jobDescriptionId) {
+        showToast('Cannot re-run: Missing analysis, resume, or job description ID.', 'error');
+        return;
+    }
+    showToast('Re-running analysis feature coming soon!', 'info');
+    // You would typically redirect to a route that re-processes the original data
+    // window.location.href = `/rerun_analysis?analysis_id=${analysisId}&resume_id=${resumeId}&jd_id=${jobDescriptionId}`;
+    // Or make an AJAX call to a backend route that re-runs the analysis and returns new results
+}
+
+// Export detail from modal
+function exportDetail() {
+    const analysisId = this.getAttribute('data-analysis-id');
+    if (!analysisId) {
+        showToast('Cannot export: Missing analysis ID.', 'error');
+        return;
+    }
+    // This button should likely trigger the PDF export for the specific analysis
+    window.location.href = `/export_pdf/${analysisId}`;
+}
+</script>
+{% endblock %}

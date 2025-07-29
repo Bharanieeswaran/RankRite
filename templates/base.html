@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RankRite - AI Resume Ranker{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="{{ url_for('index') }}">
+                <i class="bi bi-graph-up-arrow me-2"></i>RankRite
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('check_resume') }}">
+                            <i class="bi bi-file-earmark-check me-1"></i>Check Resume
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('compare_resumes') }}">
+                            <i class="bi bi-files me-1"></i>Compare
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('multiple_resumes') }}">
+                            <i class="bi bi-stack me-1"></i>Multiple Rank
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('tips') }}">
+                            <i class="bi bi-lightbulb me-1"></i>Tips
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('trends') }}">
+                            <i class="bi bi-graph-up me-1"></i>Trends
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <!-- Theme Toggle -->
+                    <li class="nav-item">
+                        <button class="btn btn-link nav-link" id="theme-toggle" title="Toggle theme">
+                            <i class="bi bi-sun-fill" id="theme-icon"></i>
+                        </button>
+                    </li>
+                    
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i>{{ current_user.get_full_name() }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('history') }}">
+                                    <i class="bi bi-clock-history me-2"></i>History
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {% if category == 'success' %}
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                            {% elif category == 'error' %}
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {% elif category == 'warning' %}
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                            {% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h5 class="text-primary fw-bold mb-3">
+                        <i class="bi bi-graph-up-arrow me-2"></i>RankRite
+                    </h5>
+                    <p class="text-muted">
+                        Advanced AI-powered resume ranking system that helps you optimize your resume 
+                        for better job matches and career opportunities.
+                    </p>
+                </div>
+                <div class="col-lg-3">
+                    <h6 class="fw-bold mb-3">Features</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('check_resume') }}" class="text-muted text-decoration-none">Resume Analysis</a></li>
+                        <li><a href="{{ url_for('compare_resumes') }}" class="text-muted text-decoration-none">Resume Comparison</a></li>
+                        <li><a href="{{ url_for('multiple_resumes') }}" class="text-muted text-decoration-none">Bulk Ranking</a></li>
+                        <li><a href="{{ url_for('tips') }}" class="text-muted text-decoration-none">Resume Tips</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h6 class="fw-bold mb-3">Resources</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('trends') }}" class="text-muted text-decoration-none">Industry Trends</a></li>
+                        <li><a href="{{ url_for('about') }}" class="text-muted text-decoration-none">About Us</a></li>
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('history') }}" class="text-muted text-decoration-none">Analysis History</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">
+                        &copy; 2025 RankRite. Built with <i class="bi bi-heart-fill text-danger"></i> for job seekers.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        Powered by AI • Flask • Bootstrap
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Loading Spinner Overlay -->
+    <div id="loading-overlay" class="loading-overlay d-none">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-center">Processing your request...</p>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <!-- Toasts will be dynamically added here -->
+    </div>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/spinner.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mode-toggle.js') }}"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+    
+    <script>
+        // Initialize tooltips and popovers
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
+        
+        // File upload validation
+        function validateFileUpload(input, maxSize = 16 * 1024 * 1024) {
+            const files = input.files;
+            const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Check file size
+                if (file.size > maxSize) {
+                    showToast('File too large. Maximum size is 16MB.', 'error');
+                    input.value = '';
+                    return false;
+                }
+                
+                // Check file type
+                if (!allowedTypes.includes(file.type)) {
+                    showToast('Invalid file type. Please upload PDF or DOCX files only.', 'error');
+                    input.value = '';
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // Form submission with loading spinner
+        function submitFormWithSpinner(form) {
+            if (form.checkValidity()) {
+                showSpinner();
+                return true;
+            }
+            return false;
+        }
+        
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                setTimeout(function() {
+                    bsAlert.close();
+                }, 5000);
+            });
+        }, 100);
+    </script>
+</body>
+</html>

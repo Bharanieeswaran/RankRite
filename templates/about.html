@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}About - RankRite{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <h1 class="display-4 text-primary">About RankRite</h1>
+                <p class="lead text-muted">Smarter Resume Ranking with AI.</p>
+            </div>
+            <div class="card glassmorphism p-4 shadow rounded-4 border-0">
+                <p>
+                    <strong>RankRite</strong> is a cutting-edge web application designed to help recruiters, job seekers, and HR professionals evaluate resumes intelligently using Natural Language Processing and Machine Learning.
+                </p>
+                <p>
+                    Built with technologies like <strong>Flask, Scikit-learn, SpaCy</strong> and more, RankRite compares resumes against job descriptions, ranks them using semantic similarity, and provides smart feedback.
+                </p>
+                <h4 class="mt-4">🌟 Key Features:</h4>
+                <ul>
+                    <li>🧠 AI-based Resume Parsing & Ranking</li>
+                    <li>📂 Support for Multiple Resume Uploads</li>
+                    <li>📊 PDF & CSV Report Generation</li>
+                    <li>🌗 Glassmorphic UI with Dark/Light Mode</li>
+                    <li>🔐 User Authentication & History Tracking</li>
+                </ul>
+                <p class="mt-4">
+                    This project is built by <strong>Bharanieeswaran R</strong> as part of a vision to bridge the gap between resumes and real job expectations using AI.
+                </p>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-house me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

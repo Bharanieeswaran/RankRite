@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Check Resume - RankRite{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4 text-center neon-text">Resume Analysis</h1>
+    <p class="text-center lead text-muted">Upload your resume and paste a job description to get a compatibility score and suggestions.</p>
+
+    <div class="card shadow-lg p-4 mb-5 custom-card">
+        {% if not show_results %}
+        <form id="checkResumeForm" action="{{ url_for('check_resume') }}" method="POST" enctype="multipart/form-data">
+            <h2 class="h4 mb-4 text-primary">Upload & Analyze</h2>
+            
+            <div class="mb-3">
+                <label for="resume_file" class="form-label">Upload Your Resume <span class="text-danger">*</span></label>
+                <input class="form-control" type="file" id="resume_file" name="resume_file" accept=".pdf,.docx,.doc" required>
+                <div class="form-text">Accepted formats: PDF, DOCX, DOC. Max size: 16MB.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="jd_title" class="form-label">Job Description Title (Optional)</label>
+                <input type="text" class="form-control" id="jd_title" name="jd_title" placeholder="e.g., Senior Python Developer">
+                <div class="form-text">A title to help you identify this job description in your history.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="job_description" class="form-label">Paste Job Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="job_description" name="job_description" rows="10" placeholder="Paste the full job description here..." required></textarea>
+                <div class="form-text">The more detailed the job description, the better the analysis.</div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg mt-3">
+                    <span id="spinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                    Analyze Resume
+                </button>
+            </div>
+        </form>
+        {% endif %}
+
+        {% if show_results %}
+        <div class="mt-5">
+            <h2 class="h4 mb-4 text-primary text-center">Analysis Results for {{ resume_filename }}</h2>
+            <p class="text-center text-muted">against: <strong>{{ jd_title if jd_title else 'Unnamed Job Description' }}</strong></p>
+
+            <div class="row justify-content-center mb-4">
+                <div class="col-md-8">
+                    <div class="card bg-{{ analysis.rank_color }} text-white text-center p-3 shadow-sm">
+                        <h3 class="mb-0">Overall Match: {{ analysis.overall_score }}%</h3>
+                        <p class="lead mb-0">{{ analysis.rank_level }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-3 shadow-sm custom-card">
+                        <h5 class="card-title text-primary">Score Breakdown</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Skills Match
+                                <span class="badge bg-secondary rounded-pill">{{ analysis.skills_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Experience Match
+                                <span class="badge bg-secondary rounded-pill">{{ analysis.experience_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Education Match
+                                <span class="badge bg-secondary rounded-pill">{{ analysis.education_score }}%</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-3 shadow-sm custom-card">
+                        <h5 class="card-title text-primary">Matched Skills</h5>
+                        {% if analysis.matched_skills %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in analysis.matched_skills %}
+                            <span class="badge bg-success-subtle text-success border border-success">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No specific skills matched.</p>
+                        {% endif %}
+
+                        <h5 class="card-title text-primary mt-4">Missing Skills</h5>
+                        {% if analysis.missing_skills %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in analysis.missing_skills %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No critical missing skills identified!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-3 shadow-sm custom-card">
+                        <h5 class="card-title text-primary">Improvement Suggestions</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for suggestion in analysis.improvements.split('\n') %}
+                            <li class="list-group-item bg-transparent">{{ suggestion }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-3 shadow-sm custom-card">
+                        <h5 class="card-title text-primary">Skill Gap Suggestions</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for suggestion in analysis.skill_gap_suggestions.split('\n') %}
+                            <li class="list-group-item bg-transparent">{{ suggestion }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    {% if current_user.is_authenticated and analysis_id %}
+                    <a href="{{ url_for('export_pdf', analysis_id=analysis_id) }}" class="btn btn-info me-2">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
+                    </a>
+                    <a href="{{ url_for('export_csv', analysis_id=analysis_id) }}" class="btn btn-info">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export CSV
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('check_resume') }}" class="btn btn-secondary ms-2">
+                        <i class="bi bi-arrow-left-circle me-2"></i>Analyze Another Resume
+                    </a>
+                </div>
+            </div>
+
+            <div class="accordion mt-5" id="accordionResumeDetails">
+                <div class="accordion-item custom-card">
+                  <h2 class="accordion-header" id="headingResume">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseResume" aria-expanded="false" aria-controls="collapseResume">
+                      View Original Resume Content & Extracted Details
+                    </button>
+                  </h2>
+                  <div id="collapseResume" class="accordion-collapse collapse" aria-labelledby="headingResume" data-bs-parent="#accordionResumeDetails">
+                    <div class="accordion-body">
+                        <h6 class="text-primary">Extracted Skills:</h6>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% for skill in resume_details.skills %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                        <h6 class="text-primary">Experience:</h6>
+                        <p>{{ resume_details.experience_years }} years</p>
+                        <h6 class="text-primary">Education:</h6>
+                        <ul>
+                            {% for edu in resume_details.education %}
+                            <li>{{ edu }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% if resume_details.contact_info %}
+                        <h6 class="text-primary">Contact Info:</h6>
+                        <ul class="list-unstyled">
+                            {% if resume_details.contact_info.email %}<li>Email: {{ resume_details.contact_info.email }}</li>{% endif %}
+                            {% if resume_details.contact_info.phone %}<li>Phone: {{ resume_details.contact_info.phone }}</li>{% endif %}
+                            {% if resume_details.contact_info.linkedin %}<li>LinkedIn: <a href="{{ resume_details.contact_info.linkedin }}" target="_blank">{{ resume_details.contact_info.linkedin }}</a></li>{% endif %}
+                        </ul>
+                        {% endif %}
+                        <h6 class="text-primary mt-3">Full Extracted Resume Text:</h6>
+                        <textarea class="form-control" rows="15" readonly>{{ resume_details.content }}</textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item custom-card mt-3">
+                    <h2 class="accordion-header" id="headingJD">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJD" aria-expanded="false" aria-controls="collapseJD">
+                        View Original Job Description
+                      </button>
+                    </h2>
+                    <div id="collapseJD" class="accordion-collapse collapse" aria-labelledby="headingJD" data-bs-parent="#accordionResumeDetails">
+                      <div class="accordion-body">
+                        <h6 class="text-primary">Job Description Content:</h6>
+                        <textarea class="form-control" rows="15" readonly>{{ job_description_content }}</textarea>
+                        {% if job_skills %}
+                        <h6 class="text-primary mt-3">Extracted Job Skills:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in job_skills %}
+                            <span class="badge bg-info-subtle text-info border border-info">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/spinner.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('checkResumeForm');
+        if (form) {
+            form.addEventListener('submit', function() {
+                // Show spinner when form is submitted
+                showSpinner('Analyzing your resume...', 'This might take a few moments as we process your documents.');
+            });
+        }
+        // Basic client-side validation for resume file
+        const resumeFileInput = document.getElementById('resume_file');
+        if (resumeFileInput) {
+            resumeFileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const maxSize = 16 * 1024 * 1024; // 16MB
+                    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword']; // .doc added
+                    
+                    if (file.size > maxSize) {
+                        showToast('Resume file size exceeds 16MB limit.', 'error');
+                        this.value = ''; // Clear the invalid file selection
+                    } else if (!allowedTypes.includes(file.type)) {
+                        showToast('Resume file type not supported. Please upload PDF, DOCX, or DOC.', 'error');
+                        this.value = ''; // Clear the invalid file selection
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

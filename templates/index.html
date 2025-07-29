@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}RankRite - AI Resume Ranker | Smart Resume Analysis{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 hero-content">
+                <h1 class="hero-title fade-in">
+                    Rank Your Resume with <span class="text-gradient">AI Power</span>
+                </h1>
+                <p class="hero-subtitle slide-up">
+                    Get instant insights on how well your resume matches job requirements. 
+                    Optimize your chances with our advanced AI-powered analysis system.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a href="{{ url_for('check_resume') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-play-circle me-2"></i>Analyze Resume
+                    </a>
+                    <a href="{{ url_for('compare_resumes') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-files me-2"></i>Compare Resumes
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-illustration scale-in">
+                    <svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Document -->
+                        <rect x="50" y="50" width="200" height="250" rx="10" fill="white" stroke="#e0e0e0" stroke-width="2"/>
+                        <!-- Lines representing text -->
+                        <rect x="70" y="80" width="120" height="8" rx="4" fill="#f0f0f0"/>
+                        <rect x="70" y="100" width="160" height="8" rx="4" fill="#f0f0f0"/>
+                        <rect x="70" y="120" width="140" height="8" rx="4" fill="#f0f0f0"/>
+                        <rect x="70" y="160" width="100" height="8" rx="4" fill="#0066cc"/>
+                        <rect x="70" y="180" width="130" height="8" rx="4" fill="#0066cc"/>
+                        <rect x="70" y="200" width="110" height="8" rx="4" fill="#0066cc"/>
+                        <!-- AI Brain -->
+                        <circle cx="320" cy="120" r="40" fill="#667eea" opacity="0.8"/>
+                        <circle cx="315" cy="115" r="8" fill="white"/>
+                        <circle cx="325" cy="115" r="8" fill="white"/>
+                        <path d="M310 130 Q320 140 330 130" stroke="white" stroke-width="3" fill="none"/>
+                        <!-- Connection lines -->
+                        <path d="M250 150 Q280 130 280 120" stroke="#0066cc" stroke-width="3" fill="none" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" values="0;10" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                        <!-- Stars for analysis -->
+                        <polygon points="340,180 345,190 355,190 347,197 350,207 340,200 330,207 333,197 325,190 335,190" fill="#ffd700" opacity="0.8">
+                            <animateTransform attributeName="transform" type="rotate" values="0 340 190;360 340 190" dur="3s" repeatCount="indefinite"/>
+                        </polygon>
+                        <polygon points="280,60 283,66 290,66 285,70 287,77 280,73 273,77 275,70 270,66 277,66" fill="#ffd700" opacity="0.6">
+                            <animateTransform attributeName="transform" type="rotate" values="0 280 70;360 280 70" dur="4s" repeatCount="indefinite"/>
+                        </polygon>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Why Choose RankRite?</h2>
+                <p class="lead text-muted">
+                    Our AI-powered system analyzes every aspect of your resume to give you 
+                    actionable insights for better job matches.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-brain"></i>
+                        </div>
+                        <h5 class="card-title">AI-Powered Analysis</h5>
+                        <p class="card-text text-muted">
+                            Advanced machine learning algorithms analyze your resume against job requirements with precision.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
+                        <h5 class="card-title">Instant Results</h5>
+                        <p class="card-text text-muted">
+                            Get comprehensive analysis results in seconds, not hours. Upload and analyze instantly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h5 class="card-title">Detailed Insights</h5>
+                        <p class="card-text text-muted">
+                            Comprehensive breakdown of skills, experience, and education matching with improvement suggestions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <h5 class="card-title">Professional Quality</h5>
+                        <p class="card-text text-muted">
+                            Industry-standard analysis trusted by professionals and recruiters worldwide.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+                <p class="lead text-muted">
+                    Three simple steps to get comprehensive resume analysis and improve your job prospects.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold fs-3">1</span>
+                    </div>
+                    <h4 class="fw-bold">Upload Resume</h4>
+                    <p class="text-muted">
+                        Upload your resume in PDF or DOCX format. Our system supports multiple file types and sizes.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold fs-3">2</span>
+                    </div>
+                    <h4 class="fw-bold">Add Job Description</h4>
+                    <p class="text-muted">
+                        Paste the job description you're targeting. Our AI will analyze the requirements and match them with your resume.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold fs-3">3</span>
+                    </div>
+                    <h4 class="fw-bold">Get Insights</h4>
+                    <p class="text-muted">
+                        Receive detailed analysis with match percentages, skill gaps, and actionable improvement suggestions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="stat-number" data-count="10000">0</span>
+                    <div class="stat-label">Resumes Analyzed</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="stat-number" data-count="95">0</span>
+                    <div class="stat-label">% Accuracy Rate</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="stat-number" data-count="5000">0</span>
+                    <div class="stat-label">Happy Users</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="stat-number" data-count="24">0</span>
+                    <div class="stat-label">7 Support</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h3 class="display-6 fw-bold mb-3">Ready to Optimize Your Resume?</h3>
+                <p class="lead mb-0">
+                    Join thousands of professionals who have improved their job prospects with RankRite's AI-powered analysis.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('check_resume') }}" class="btn btn-light btn-lg">
+                    <i class="bi bi-rocket-takeoff me-2"></i>Get Started Now
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Demo Section -->
+{% if not current_user.is_authenticated %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mx-auto">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-gradient text-white text-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-lightning-charge me-2"></i>Quick Demo
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-center text-muted mb-4">
+                            Try our instant analysis with sample data
+                        </p>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <button class="btn btn-outline-primary w-100" onclick="loadSampleResume()">
+                                    <i class="bi bi-file-earmark-text me-2"></i>Sample Resume
+                                </button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn-outline-success w-100" onclick="loadSampleJob()">
+                                    <i class="bi bi-briefcase me-2"></i>Sample Job
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <a href="{{ url_for('register') }}" class="text-decoration-none">Register</a> 
+                                for full features and history tracking
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate statistics counters
+    const counters = document.querySelectorAll('.stat-number[data-count]');
+    
+    const animateCounter = (counter) => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const increment = target / 50;
+        let current = 0;
+        
+        const updateCounter = () => {
+            if (current < target) {
+                current += increment;
+                counter.textContent = Math.floor(current).toLocaleString();
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target.toLocaleString();
+            }
+        };
+        
+        updateCounter();
+    };
+    
+    // Intersection Observer for counter animation
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target.querySelector('.stat-number[data-count]');
+                if (counter) {
+                    animateCounter(counter);
+                    observer.unobserve(entry.target);
+                }
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.stat-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+
+// Sample data functions
+function loadSampleResume() {
+    showInfo('Sample resume data loaded! Visit the analysis page to try it out.', 3000);
+    setTimeout(() => {
+        window.location.href = '{{ url_for("check_resume") }}?demo=resume';
+    }, 1000);
+}
+
+function loadSampleJob() {
+    showInfo('Sample job description loaded! Visit the analysis page to try it out.', 3000);
+    setTimeout(() => {
+        window.location.href = '{{ url_for("check_resume") }}?demo=job';
+    }, 1000);
+}
+</script>
+{% endblock %}
