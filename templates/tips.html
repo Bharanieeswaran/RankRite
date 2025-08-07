@@ -1,199 +1,149 @@
 {% extends "base.html" %}
 
-{% block title %}Resume Tips - RankRite{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex align-items-center mb-4">
-            <i class="bi bi-lightbulb text-warning fs-2 me-3"></i>
-            <div>
-                <h1 class="fw-bold mb-1">Resume Tips & Best Practices</h1>
-                <p class="text-muted mb-0">Expert advice to help you create a winning resume</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Navigation -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3">Quick Navigation</h6>
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="#formatting" class="btn btn-sm btn-outline-primary">Formatting</a>
-                    <a href="#content" class="btn btn-sm btn-outline-primary">Content</a>
-                    <a href="#keywords" class="btn btn-sm btn-outline-primary">Keywords</a>
-                    <a href="#sections" class="btn btn-sm btn-outline-primary">Sections</a>
-                    <a href="#mistakes" class="btn btn-sm btn-outline-danger">Common Mistakes</a>
-                    <a href="#ats" class="btn btn-sm btn-outline-success">ATS Optimization</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Main Content -->
-    <div class="col-lg-8">
-        <!-- Resume Formatting -->
-        <section id="formatting" class="mb-5">
-            <div class="card border-0 shadow-sm">
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="card-title mb-0">
-                        <i class="bi bi-layout-text-window me-2"></i>Resume Formatting
-                    </h4>
+                    <h2 class="mb-0">Resume Tips & Best Practices</h2>
                 </div>
                 <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <h6 class="text-success">✅ Do's</h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Use a clean, professional font (Arial, Calibri, Times New Roman)
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Keep font size between 10-12 points
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Use consistent formatting throughout
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Maintain proper margins (0.5-1 inch)
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Use bullet points for easy scanning
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-check-circle text-success me-2"></i>
-                                    Keep it to 1-2 pages maximum
-                                </li>
-                            </ul>
+                    <div class="accordion" id="tipsAccordion">
+                        <!-- General Tips -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingGeneral">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral" aria-expanded="true" aria-controls="collapseGeneral">
+                                    General Resume Tips
+                                </button>
+                            </h2>
+                            <div id="collapseGeneral" class="accordion-collapse collapse show" aria-labelledby="headingGeneral" data-bs-parent="#tipsAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">Keep your resume concise and focused on the most relevant information.</li>
+                                        <li class="list-group-item">Use action verbs to describe your experiences and achievements.</li>
+                                        <li class="list-group-item">Tailor your resume for each job application.</li>
+                                        <li class="list-group-item">Highlight your skills that match the job requirements.</li>
+                                        <li class="list-group-item">Use a clean, professional format that is easy to read.</li>
+                                        <li class="list-group-item">Proofread carefully to avoid spelling and grammar mistakes.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-danger">❌ Don'ts</h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <i class="bi bi-x-circle text-danger me-2"></i>
-                                    Don't use fancy fonts or colors
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-x-circle text-danger me-2"></i>
-                                    Avoid text smaller than 10pt
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-x-circle text-danger me-2"></i>
-                                    Don't overcrowd the page
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-x-circle text-danger me-2"></i>
-                                    Avoid using tables or complex layouts
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-x-circle text-danger me-2"></i>
-                                    Don't use graphics or images
-                                </li>
-                                <li class="mb-2">
-                                    <i class="bi bi-x-circle text-danger me-2"></i>
-                                    Never exceed 3 pages
-                                </li>
-                            </ul>
+                        
+                        <!-- Skills Section Tips -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingSkills">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSkills" aria-expanded="false" aria-controls="collapseSkills">
+                                    Skills Section Tips
+                                </button>
+                            </h2>
+                            <div id="collapseSkills" class="accordion-collapse collapse" aria-labelledby="headingSkills" data-bs-parent="#tipsAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">Include both technical and soft skills relevant to the position.</li>
+                                        <li class="list-group-item">List skills in order of relevance to the job.</li>
+                                        <li class="list-group-item">Be specific about your level of proficiency with each skill.</li>
+                                        <li class="list-group-item">Include industry-specific terminology and keywords.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Experience Section Tips -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingExperience">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExperience" aria-expanded="false" aria-controls="collapseExperience">
+                                    Experience Section Tips
+                                </button>
+                            </h2>
+                            <div id="collapseExperience" class="accordion-collapse collapse" aria-labelledby="headingExperience" data-bs-parent="#tipsAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">List your work experience in reverse chronological order.</li>
+                                        <li class="list-group-item">Include your job title, company name, location, and dates of employment.</li>
+                                        <li class="list-group-item">Use bullet points to describe your responsibilities and achievements.</li>
+                                        <li class="list-group-item">Quantify your achievements whenever possible (e.g., "increased sales by 20%").</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Education Section Tips -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingEducation">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEducation" aria-expanded="false" aria-controls="collapseEducation">
+                                    Education Section Tips
+                                </button>
+                            </h2>
+                            <div id="collapseEducation" class="accordion-collapse collapse" aria-labelledby="headingEducation" data-bs-parent="#tipsAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">Include your degree, major, university name, and graduation date.</li>
+                                        <li class="list-group-item">List any relevant coursework, projects, or academic achievements.</li>
+                                        <li class="list-group-item">Include certifications and professional development courses.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Formatting Tips -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFormatting">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFormatting" aria-expanded="false" aria-controls="collapseFormatting">
+                                    Formatting Tips
+                                </button>
+                            </h2>
+                            <div id="collapseFormatting" class="accordion-collapse collapse" aria-labelledby="headingFormatting" data-bs-parent="#tipsAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">Use consistent formatting throughout your resume.</li>
+                                        <li class="list-group-item">Choose a professional font and appropriate font size (10-12pt).</li>
+                                        <li class="list-group-item">Use white space effectively to make your resume easy to scan.</li>
+                                        <li class="list-group-item">Save your resume as a PDF to preserve formatting across devices.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Content Strategy -->
-        <section id="content" class="mb-5">
-            <div class="card border-0 shadow-sm">
+            
+            <div class="card mt-4 shadow-sm">
                 <div class="card-header bg-success text-white">
-                    <h4 class="card-title mb-0">
-                        <i class="bi bi-file-text me-2"></i>Content Strategy
-                    </h4>
+                    <h4 class="mb-0">Using RankRite Effectively</h4>
                 </div>
                 <div class="card-body">
-                    <h6 class="fw-bold mb-3">Key Principles</h6>
-                    <div class="row g-4">
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="bg-light rounded p-3">
-                                <h6 class="text-primary">
-                                    <i class="bi bi-bullseye me-2"></i>Be Specific
-                                </h6>
-                                <p class="small mb-0">Use specific numbers, percentages, and metrics to quantify your achievements.</p>
-                                <div class="mt-2">
-                                    <small class="text-success fw-bold">Good:</small> "Increased sales by 25% in Q3"<br>
-                                    <small class="text-danger fw-bold">Bad:</small> "Responsible for sales"
-                                </div>
-                            </div>
+                            <h5>Before Analysis</h5>
+                            <ul>
+                                <li>Ensure your resume is up-to-date with all relevant experience</li>
+                                <li>Have a clear job description for the position you're targeting</li>
+                                <li>Make sure your resume file is in a supported format (PDF, DOCX)</li>
+                            </ul>
                         </div>
                         <div class="col-md-6">
-                            <div class="bg-light rounded p-3">
-                                <h6 class="text-info">
-                                    <i class="bi bi-lightning me-2"></i>Action-Oriented
-                                </h6>
-                                <p class="small mb-0">Start bullet points with strong action verbs.</p>
-                                <div class="mt-2">
-                                    <div class="d-flex flex-wrap gap-1">
-                                        <span class="badge bg-info-subtle text-info">Achieved</span>
-                                        <span class="badge bg-info-subtle text-info">Developed</span>
-                                        <span class="badge bg-info-subtle text-info">Implemented</span>
-                                        <span class="badge bg-info-subtle text-info">Led</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="bg-light rounded p-3">
-                                <h6 class="text-warning">
-                                    <i class="bi bi-target me-2"></i>Relevant
-                                </h6>
-                                <p class="small mb-0">Tailor your resume for each job application.</p>
-                                <small class="text-muted">Focus on experiences that match the job requirements.</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="bg-light rounded p-3">
-                                <h6 class="text-secondary">
-                                    <i class="bi bi-clock me-2"></i>Recent
-                                </h6>
-                                <p class="small mb-0">Emphasize recent and relevant experiences.</p>
-                                <small class="text-muted">Last 10-15 years are most important.</small>
-                            </div>
+                            <h5>After Analysis</h5>
+                            <ul>
+                                <li>Review the skill gaps identified by our AI</li>
+                                <li>Consider adding missing skills if you have them</li>
+                                <li>Use the improvement suggestions to refine your resume</li>
+                                <li>Re-analyze after making changes to track improvements</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Keywords & ATS -->
-        <section id="keywords" class="mb-5">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h4 class="card-title mb-0">
-                        <i class="bi bi-key me-2"></i>Keywords & ATS Optimization
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Did you know?</strong> 75% of resumes are filtered out by ATS before reaching human recruiters.
-                    </div>
-                    
-                    <h6 class="fw-bold mb-3">ATS-Friendly Tips</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-search text-primary fs-4 me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="mb-1">Use Job-Specific Keywords</h6>
-                                    <p class="small text-muted mb-0">Include keywords from the job description naturally throughout your resume.</p>
-                                </div>
-                            </div>
-                        </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ url_for('check_resume') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-play-circle me-2"></i>Analyze Your Resume Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

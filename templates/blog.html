@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Blog - Rankrite{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold mb-3">Resume & Career Blog</h1>
+            <p class="lead text-muted">Expert advice to help you land your dream job</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Main content -->
+        <div class="col-lg-8">
+            <!-- Featured post -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-img-top position-relative">
+                    <img src="{{ url_for('static', filename='img/blog-featured.jpg') }}" class="img-fluid" alt="Featured blog post">
+                    <div class="position-absolute top-0 start-0 p-3">
+                        <span class="badge bg-primary">Featured</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="small text-muted mb-1">May 15, 2023 • 8 min read</div>
+                    <h2 class="card-title h3">10 Resume Mistakes That Are Costing You Job Interviews</h2>
+                    <p class="card-text">Learn the common resume mistakes that hiring managers see every day and how to fix them to dramatically increase your interview chances.</p>
+                    <a href="#" class="btn btn-primary">Read More</a>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Blog post 1 -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ url_for('static', filename='img/blog-1.jpg') }}" class="card-img-top" alt="Blog post image">
+                        <div class="card-body p-4">
+                            <div class="small text-muted mb-1">May 10, 2023 • 5 min read</div>
+                            <h3 class="card-title h5">How to Optimize Your Resume for ATS Systems</h3>
+                            <p class="card-text">Most companies use Applicant Tracking Systems to filter resumes. Here's how to ensure yours gets through.</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                            <a href="#" class="btn btn-sm btn-outline-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Blog post 2 -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ url_for('static', filename='img/blog-2.jpg') }}" class="card-img-top" alt="Blog post image">
+                        <div class="card-body p-4">
+                            <div class="small text-muted mb-1">May 5, 2023 • 6 min read</div>
+                            <h3 class="card-title h5">The Perfect Resume Length: How Long Should Your Resume Be?</h3>
+                            <p class="card-text">One page? Two pages? We break down the ideal resume length based on your experience level and industry.</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                            <a href="#" class="btn btn-sm btn-outline-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Blog post 3 -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ url_for('static', filename='img/blog-3.jpg') }}" class="card-img-top" alt="Blog post image">
+                        <div class="card-body p-4">
+                            <div class="small text-muted mb-1">April 28, 2023 • 7 min read</div>
+                            <h3 class="card-title h5">How to Showcase Soft Skills on Your Resume</h3>
+                            <p class="card-text">Technical skills aren't enough. Learn how to effectively demonstrate your soft skills to employers.</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                            <a href="#" class="btn btn-sm btn-outline-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Blog post 4 -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ url_for('static', filename='img/blog-4.jpg') }}" class="card-img-top" alt="Blog post image">
+                        <div class="card-body p-4">
+                            <div class="small text-muted mb-1">April 20, 2023 • 4 min read</div>
+                            <h3 class="card-title h5">Resume vs CV: Understanding the Differences</h3>
+                            <p class="card-text">Many job seekers use these terms interchangeably, but they're not the same. Here's what you need to know.</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                            <a href="#" class="btn btn-sm btn-outline-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <nav class="mt-5" aria-label="Blog pagination">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Search widget -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">Search</h4>
+                    <div class="input-group">
+                        <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="button-search">
+                        <button class="btn btn-primary" id="button-search" type="button">Go!</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Categories widget -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">Categories</h4>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><a href="#" class="text-decoration-none">Resume Tips</a></li>
+                                <li class="mb-2"><a href="#" class="text-decoration-none">Cover Letters</a></li>
+                                <li class="mb-2"><a href="#" class="text-decoration-none">Job Search</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-6">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><a href="#" class="text-decoration-none">Interviews</a></li>
+                                <li class="mb-2"><a href="#" class="text-decoration-none">Career Advice</a></li>
+                                <li class="mb-2"><a href="#" class="text-decoration-none">Industry Insights</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Newsletter widget -->
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">Subscribe to Our Newsletter</h4>
+                    <p>Get the latest career advice and resume tips delivered straight to your inbox.</p>
+                    <form>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                        <button type="submit" class="btn btn-light">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

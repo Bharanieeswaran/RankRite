@@ -1,324 +1,234 @@
 {% extends "base.html" %}
-
 {% block title %}Compare Resumes - RankRite{% endblock %}
-
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex align-items-center mb-4">
-            <i class="bi bi-file-earmark-diff text-primary fs-2 me-3"></i>
-            <div>
-                <h1 class="fw-bold mb-1">Resume Comparison</h1>
-                <p class="text-muted mb-0">Compare two resumes side-by-side against the same job description</p>
-            </div>
-        </div>
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary mb-3">
+            <i class="bi bi-file-earmark-diff me-3"></i>Compare Resumes
+        </h1>
+        <p class="lead text-muted">
+            Compare two resumes side-by-side against a job description to find the best candidate.
+        </p>
     </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-upload me-2"></i>Upload Documents for Comparison
-                </h5>
-            </div>
-            <div class="card-body">
-                <form id="compareForm" method="POST" enctype="multipart/form-data">
-                    <div class="row g-4">
-                        <div class="col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <h6 class="fw-bold text-primary mb-3">
-                                    <i class="bi bi-file-earmark-person me-2"></i>Resume A
-                                </h6>
-                                <div class="mb-3">
-                                    <label for="resumeA" class="form-label">Upload Resume A</label>
-                                    <input type="file" class="form-control" id="resumeA" name="resumeA" 
-                                           accept=".pdf,.docx" required>
+    
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-upload me-2"></i>Upload Documents for Comparison
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="border rounded p-3 h-100">
+                                    <h6 class="fw-bold text-primary mb-3">
+                                        <i class="bi bi-file-earmark-person me-2"></i>Resume 1
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="resumeA" class="form-label">Upload Resume</label>
+                                        <input type="file" class="form-control" id="resumeA" name="resumeA" 
+                                               accept=".pdf,.docx" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="candidateA" class="form-label">Candidate Name (Optional)</label>
+                                        <input type="text" class="form-control" id="candidateA" name="candidateA" 
+                                               placeholder="e.g., John Doe">
+                                    </div>
+                                    <div class="form-text">
+                                        <small>PDF or DOCX format, max 10MB</small>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="candidateA" class="form-label">Candidate Name (Optional)</label>
-                                    <input type="text" class="form-control" id="candidateA" name="candidateA" 
-                                           placeholder="e.g., John Doe">
-                                </div>
-                                <div class="form-text">
-                                    <small>PDF or DOCX format, max 10MB</small>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="border rounded p-3 h-100">
+                                    <h6 class="fw-bold text-success mb-3">
+                                        <i class="bi bi-file-earmark-person me-2"></i>Resume 2
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="resumeB" class="form-label">Upload Resume</label>
+                                        <input type="file" class="form-control" id="resumeB" name="resumeB" 
+                                               accept=".pdf,.docx" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="candidateB" class="form-label">Candidate Name (Optional)</label>
+                                        <input type="text" class="form-control" id="candidateB" name="candidateB" 
+                                               placeholder="e.g., Jane Smith">
+                                    </div>
+                                    <div class="form-text">
+                                        <small>PDF or DOCX format, max 10MB</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <h6 class="fw-bold text-success mb-3">
-                                    <i class="bi bi-file-earmark-person me-2"></i>Resume B
-                                </h6>
+                        <div class="row mt-4">
+                            <div class="col-12">
                                 <div class="mb-3">
-                                    <label for="resumeB" class="form-label">Upload Resume B</label>
-                                    <input type="file" class="form-control" id="resumeB" name="resumeB" 
-                                           accept=".pdf,.docx" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="candidateB" class="form-label">Candidate Name (Optional)</label>
-                                    <input type="text" class="form-control" id="candidateB" name="candidateB" 
-                                           placeholder="e.g., Jane Smith">
-                                </div>
-                                <div class="form-text">
-                                    <small>PDF or DOCX format, max 10MB</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <h6 class="fw-bold text-info mb-3">
-                                    <i class="bi bi-file-earmark-text me-2"></i>Job Description
-                                </h6>
-                                <div class="mb-3">
-                                    <label for="job_description" class="form-label">Job Requirements</label>
+                                    <label for="job_description" class="form-label">Job Description</label>
                                     <textarea class="form-control" id="job_description" name="job_description" 
                                               rows="6" placeholder="Paste job description here..." required></textarea>
                                 </div>
                                 <button type="button" class="btn btn-outline-info btn-sm" 
                                         data-bs-toggle="modal" data-bs-target="#sampleJDModal">
-                                    <i class="bi bi-eye me-1"></i>View Sample
+                                    <i class="bi bi-eye me-1"></i>View Sample Job Description
                                 </button>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h6 class="fw-bold mb-3">
-                                <i class="bi bi-sliders me-2"></i>Comparison Settings
-                            </h6>
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="skills_comparison" 
-                                               name="comparison_options" value="skills" checked>
-                                        <label class="form-check-label" for="skills_comparison">
-                                            Skills Comparison
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="experience_comparison" 
-                                               name="comparison_options" value="experience" checked>
-                                        <label class="form-check-label" for="experience_comparison">
-                                            Experience Level
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="education_comparison" 
-                                               name="comparison_options" value="education" checked>
-                                        <label class="form-check-label" for="education_comparison">
-                                            Education Match
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="detailed_analysis" 
-                                               name="comparison_options" value="detailed">
-                                        <label class="form-check-label" for="detailed_analysis">
-                                            Detailed Analysis
-                                        </label>
-                                    </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="bi bi-cpu me-2"></i>Compare Resumes
+                                    </button>
+                                    <button type="reset" class="btn btn-outline-secondary btn-lg">
+                                        <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                                <button type="submit" class="btn btn-primary btn-lg px-5">
-                                    <i class="bi bi-cpu me-2"></i>Compare Resumes
-                                </button>
-                                <button type="reset" class="btn btn-outline-secondary btn-lg">
-                                    <i class="bi bi-arrow-clockwise me-2"></i>Reset
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+    
+    {% if results %}
+    <!-- Results Section -->
+    <div class="mt-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">
+                <i class="bi bi-trophy me-2"></i>Comparison Results
+            </h2>
+            <p class="text-muted">Detailed analysis of both resumes</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-file-earmark-person me-2"></i>Resume 1
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <svg width="120" height="120" class="circular-progress">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="6"/>
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#0d6efd" stroke-width="6" 
+                                            stroke-dasharray="314" stroke-dashoffset="314" 
+                                            stroke-linecap="round" id="progress-circleA"/>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                    <h3 class="fw-bold text-primary mb-0">{{ results.score1 }}/10</h3>
+                                    <small class="text-muted">Score</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Matched Keywords</h6>
+                            <p class="text-muted">{{ results.keywords1 }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Document Length</h6>
+                            <p class="text-muted">{{ results.length1 }} words</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-file-earmark-person me-2"></i>Resume 2
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <svg width="120" height="120" class="circular-progress">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="6"/>
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#198754" stroke-width="6" 
+                                            stroke-dasharray="314" stroke-dashoffset="314" 
+                                            stroke-linecap="round" id="progress-circleB"/>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                    <h3 class="fw-bold text-success mb-0">{{ results.score2 }}/10</h3>
+                                    <small class="text-muted">Score</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Matched Keywords</h6>
+                            <p class="text-muted">{{ results.keywords2 }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Document Length</h6>
+                            <p class="text-muted">{{ results.length2 }} words</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-award me-2"></i>Final Verdict
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Better Match</h6>
+                        <p class="text-primary fs-5">{{ results.better }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Suggestions</h6>
+                        <p class="text-muted">{{ results.suggestion }}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h6 class="fw-bold text-warning">💡 Tips to Improve Resumes:</h6>
+                <ul>
+                    <li>Use action-oriented keywords from the job description.</li>
+                    <li>Quantify your achievements (e.g., "Increased efficiency by 25%").</li>
+                    <li>Customize your summary to match the job profile.</li>
+                    <li>Ensure clarity, structure, and avoid filler content.</li>
+                </ul>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('compare_resumes') }}" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Compare More Resumes
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="bi bi-printer me-2"></i>Print Results
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
-<div id="comparison-results" style="display: none;">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm bg-light">
-                <div class="card-body text-center py-4">
-                    <div id="winner-announcement">
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-file-earmark-person me-2"></i>
-                        <span id="candidateA-name">Resume A</span>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <div class="position-relative d-inline-block">
-                            <svg width="120" height="120" class="circular-progress">
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="6"/>
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="#0d6efd" stroke-width="6" 
-                                        stroke-dasharray="314" stroke-dashoffset="314" 
-                                        stroke-linecap="round" id="progress-circleA"/>
-                            </svg>
-                            <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                <h3 class="fw-bold text-primary mb-0" id="scoreA">0%</h3>
-                                <small class="text-muted">Score</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="breakdownA" class="mb-4">
-                        </div>
-
-                    <div class="mb-3">
-                        <h6 class="text-success">
-                            <i class="bi bi-check-circle me-2"></i>Strengths
-                        </h6>
-                        <div id="strengthsA">
-                            </div>
-                    </div>
-
-                    <div>
-                        <h6 class="text-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>Areas for Improvement
-                        </h6>
-                        <div id="weaknessesA">
-                            </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-file-earmark-person me-2"></i>
-                        <span id="candidateB-name">Resume B</span>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <div class="position-relative d-inline-block">
-                            <svg width="120" height="120" class="circular-progress">
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="6"/>
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="#198754" stroke-width="6" 
-                                        stroke-dasharray="314" stroke-dashoffset="314" 
-                                        stroke-linecap="round" id="progress-circleB"/>
-                            </svg>
-                            <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                <h3 class="fw-bold text-success mb-0" id="scoreB">0%</h3>
-                                <small class="text-muted">Score</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="breakdownB" class="mb-4">
-                        </div>
-
-                    <div class="mb-3">
-                        <h6 class="text-success">
-                            <i class="bi bi-check-circle me-2"></i>Strengths
-                        </h6>
-                        <div id="strengthsB">
-                            </div>
-                    </div>
-
-                    <div>
-                        <h6 class="text-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>Areas for Improvement
-                        </h6>
-                        <div id="weaknessesB">
-                            </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-table me-2"></i>Detailed Comparison
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="comparison-table">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Category</th>
-                                    <th class="text-center">Resume A</th>
-                                    <th class="text-center">Resume B</th>
-                                    <th class="text-center">Winner</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h6 class="card-title mb-0">
-                        <i class="bi bi-download me-2"></i>Export Comparison Report
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-outline-primary" id="export-comparison-pdf">
-                            <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF Report
-                        </button>
-                        <button class="btn btn-outline-success" id="export-comparison-csv">
-                            <i class="bi bi-file-earmark-spreadsheet me-2"></i>Download CSV Data
-                        </button>
-                        <button class="btn btn-outline-info" id="save-comparison">
-                            <i class="bi bi-bookmark me-2"></i>Save Comparison
-                        </button>
-                        <button class="btn btn-outline-secondary" onclick="window.print()">
-                            <i class="bi bi-printer me-2"></i>Print Report
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="no-comparison-results" class="text-center py-5">
-    <i class="bi bi-file-earmark-diff text-muted" style="font-size: 4rem;"></i>
-    <h4 class="text-muted mt-3">Upload resumes to compare</h4>
-    <p class="text-muted">Your comparison results will appear here</p>
-</div>
-
+<!-- Sample Job Description Modal -->
 <div class="modal fade" id="sampleJDModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -328,9 +238,7 @@
             </div>
             <div class="modal-body">
                 <textarea class="form-control" rows="15" readonly id="sampleJDTextarea">Senior Software Engineer - Python/React
-
 We are looking for a Senior Software Engineer to join our growing engineering team. You will be responsible for designing and developing scalable web applications and APIs.
-
 Key Responsibilities:
 • Design and develop high-quality software solutions using Python and React
 • Build and maintain RESTful APIs and microservices
@@ -338,7 +246,6 @@ Key Responsibilities:
 • Collaborate with product managers and designers in an Agile environment
 • Mentor junior developers and conduct code reviews
 • Participate in architectural decisions and technical planning
-
 Required Skills & Experience:
 • 5+ years of software engineering experience
 • Strong proficiency in Python (Django/Flask) and JavaScript (React/Node.js)
@@ -347,7 +254,6 @@ Required Skills & Experience:
 • Understanding of software engineering best practices and design patterns
 • Experience with version control (Git) and CI/CD pipelines
 • Strong problem-solving skills and attention to detail
-
 Preferred Qualifications:
 • Bachelor's or Master's degree in Computer Science or related field
 • Experience with data science libraries (pandas, numpy, sklearn)
@@ -355,7 +261,6 @@ Preferred Qualifications:
 • Experience with monitoring and logging tools
 • Familiarity with agile development methodologies
 • Previous experience in a startup or fast-paced environment
-
 What We Offer:
 • Competitive salary ($120k - $180k) based on experience
 • Equity package and performance bonuses
@@ -372,335 +277,42 @@ What We Offer:
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_scripts %}
-<script src="{{ url_for('static', filename='js/spinner.js') }}"></script>
-<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
 <script>
-// Wrap all your JavaScript code in a DOMContentLoaded listener
+function useSampleJDForComparison() {
+    const sampleText = document.getElementById('sampleJDTextarea').value; 
+    document.getElementById('job_description').value = sampleText;
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('sampleJDModal'));
+    modal.hide();
+}
+
+// Set circular progress based on scores - only if results exist
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM content loaded. Attaching event listener to form."); // Debugging log
-
-    const compareForm = document.getElementById('compareForm');
-    if (compareForm) {
-        compareForm.addEventListener('submit', function(e) {
-            console.log("Form submission event triggered!"); // Debugging log for event firing
-            e.preventDefault(); // Crucial: Prevent default form submission
-
-            const formData = new FormData(this);
-            
-            showSpinner('Comparing resumes...', 'Analyzing both resumes against the job description');
-            
-            fetch('/compare', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    // Handle HTTP errors
-                    // Attempt to read JSON error if available
-                    return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                hideSpinner();
-                
-                if (data.success) {
-                    console.log("Data received and success is true. Attempting to display results:", data.results); 
-                    displayComparisonResults(data.results);
-                    showToast('Comparison completed successfully!', 'success');
-                } else {
-                    showToast(data.error || 'Comparison failed. Please try again.', 'error');
-                }
-            })
-            .catch(error => {
-                hideSpinner();
-                console.error('Fetch Error:', error); // Changed log message for clarity
-                showToast('An error occurred during comparison: ' + error.message, 'error'); // Display error message
-            });
-        });
-    } else {
-        console.error("Error: compareForm element not found!"); // Debugging log if form is missing
-    }
-
-    // --- Other functions for displaying results ---
-    function displayComparisonResults(results) {
-        document.getElementById('no-comparison-results').style.display = 'none';
-        document.getElementById('comparison-results').style.display = 'block';
-        
-        document.getElementById('candidateA-name').textContent = results.candidateA.name || 'Resume A';
-        document.getElementById('candidateB-name').textContent = results.candidateB.name || 'Resume B';
-        
-        updateCircularProgressComparison('A', results.candidateA.overall_score);
-        updateCircularProgressComparison('B', results.candidateB.overall_score);
-        
-        document.getElementById('scoreA').textContent = results.candidateA.overall_score + '%';
-        document.getElementById('scoreB').textContent = results.candidateB.overall_score + '%';
-        
-        updateBreakdownComparison('A', results.candidateA.breakdown);
-        updateBreakdownComparison('B', results.candidateB.breakdown);
-        
-        updateStrengthsWeaknesses('A', results.candidateA.strengths, results.candidateA.weaknesses);
-        updateStrengthsWeaknesses('B', results.candidateB.strengths, results.candidateB.weaknesses);
-        
-        updateWinnerAnnouncement(results);
-        updateComparisonTable(results);
-        
-        document.getElementById('comparison-results').scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
-    }
-
-    function updateCircularProgressComparison(candidate, score) {
-        const circle = document.getElementById(`progress-circle${candidate}`);
+    {% if results %}
+    const score1 = {{ results.score1|default(0) }};
+    const score2 = {{ results.score2|default(0) }};
+    
+    if (score1 > 0) {
+        const circleA = document.getElementById('progress-circleA');
         const circumference = 2 * Math.PI * 50; 
-        const offset = circumference - (score / 100) * circumference;
-        
-        circle.style.strokeDashoffset = offset;
-        
-        let color = ''; 
-        if (candidate === 'A') {
-            color = '#0d6efd'; // Primary color
-        } else if (candidate === 'B') {
-            color = '#198754'; // Success color
-        }
-        
-        // Adjust color based on score for visual feedback (e.g., warning/danger for low scores)
-        if (score >= 80) {
-            // Keep candidate's primary/success color
-        } else if (score >= 60) {
-            circle.setAttribute('stroke', '#ffc107'); // Warning color
-            return; // Exit to avoid overwriting with primary/success
-        } else {
-            circle.setAttribute('stroke', '#dc3545'); // Danger color
-            return; // Exit
-        }
-        
-        circle.setAttribute('stroke', color); // Set initial color if not overridden by score
+        const offset = circumference - (score1 / 10) * circumference;
+        circleA.style.strokeDashoffset = offset;
     }
-
-    function updateBreakdownComparison(candidate, breakdown) {
-        const container = document.getElementById(`breakdown${candidate}`);
-        container.innerHTML = '';
-        
-        Object.entries(breakdown).forEach(([category, score]) => {
-            const div = document.createElement('div');
-            div.className = 'mb-2';
-            
-            let colorClass = 'success';
-            if (score < 80) colorClass = 'warning';
-            if (score < 60) colorClass = 'danger';
-            
-            div.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <small class="text-muted text-capitalize">${category.replace('_', ' ')}</small>
-                    <small class="fw-bold">${score}%</small>
-                </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-${colorClass}" style="width: ${score}%"></div>
-                </div>
-            `;
-            container.appendChild(div);
-        });
+    
+    if (score2 > 0) {
+        const circleB = document.getElementById('progress-circleB');
+        const circumference = 2 * Math.PI * 50; 
+        const offset = circumference - (score2 / 10) * circumference;
+        circleB.style.strokeDashoffset = offset;
     }
-
-    function updateStrengthsWeaknesses(candidate, strengths, weaknesses) {
-        const strengthsContainer = document.getElementById(`strengths${candidate}`);
-        if (strengths && strengths.length > 0) {
-            let html = '<ul class="list-unstyled mb-0">';
-            strengths.forEach(strength => {
-                html += `<li class="mb-1"><i class="bi bi-check text-success me-2"></i><small>${strength}</small></li>`;
-            });
-            html += '</ul>';
-            strengthsContainer.innerHTML = html;
-        } else {
-            strengthsContainer.innerHTML = '<small class="text-muted">No specific strengths identified.</small>';
-        }
-        
-        const weaknessesContainer = document.getElementById(`weaknesses${candidate}`);
-        if (weaknesses && weaknesses.length > 0) {
-            let html = '<ul class="list-unstyled mb-0">';
-            weaknesses.forEach(weakness => {
-                html += `<li class="mb-1"><i class="bi bi-x text-warning me-2"></i><small>${weakness}</small></li>`;
-            });
-            html += '</ul>';
-            weaknessesContainer.innerHTML = html;
-        } else {
-            weaknessesContainer.innerHTML = '<small class="text-muted">No major weaknesses identified.</small>';
-        }
-    }
-
-    function updateWinnerAnnouncement(results) {
-        const container = document.getElementById('winner-announcement');
-        const scoreA = results.candidateA.overall_score;
-        const scoreB = results.candidateB.overall_score;
-        const nameA = results.candidateA.name || 'Resume A';
-        const nameB = results.candidateB.name || 'Resume B';
-        
-        let html = '';
-        
-        if (scoreA > scoreB) {
-            const diff = scoreA - scoreB;
-            html = `
-                <h3 class="text-primary mb-2">
-                    <i class="bi bi-trophy-fill me-2"></i>
-                    ${nameA} is the better match!
-                </h3>
-                <p class="text-muted mb-0">
-                    Scoring ${diff.toFixed(1)} percentage points higher (${scoreA}% vs ${scoreB}%)
-                </p>
-            `;
-        } else if (scoreB > scoreA) {
-            const diff = scoreB - scoreA;
-            html = `
-                <h3 class="text-success mb-2">
-                    <i class="bi bi-trophy-fill me-2"></i>
-                    ${nameB} is the better match!
-                </h3>
-                <p class="text-muted mb-0">
-                    Scoring ${diff.toFixed(1)} percentage points higher (${scoreB}% vs ${scoreA}%)
-                </p>
-            `;
-        } else {
-            html = `
-                <h3 class="text-info mb-2">
-                    <i class="bi bi-award-fill me-2"></i>
-                    It's a tie!
-                </h3>
-                <p class="text-muted mb-0">
-                    Both resumes scored equally (${scoreA}%)
-                </p>
-            `;
-        }
-        container.innerHTML = html;
-    }
-
-    function updateComparisonTable(results) {
-        const tbody = document.querySelector('#comparison-table tbody');
-        tbody.innerHTML = '';
-        
-        const categories = ['skills', 'experience', 'education'];
-        
-        categories.forEach(category => {
-            const scoreA = results.candidateA.breakdown[category] || 0;
-            const scoreB = results.candidateB.breakdown[category] || 0;
-            const nameA = results.candidateA.name || 'Resume A';
-            const nameB = results.candidateB.name || 'Resume B';
-            
-            let winner = '';
-            let winnerClass = '';
-            
-            if (scoreA > scoreB) {
-                winner = nameA;
-                winnerClass = 'text-primary';
-            } else if (scoreB > scoreA) {
-                winner = nameB;
-                winnerClass = 'text-success';
-            } else {
-                winner = 'Tie';
-                winnerClass = 'text-info';
-            }
-            
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="fw-semibold text-capitalize">${category.replace('_', ' ')}</td>
-                <td class="text-center">
-                    <span class="badge ${scoreA >= 80 ? 'bg-success' : scoreA >= 60 ? 'bg-warning' : 'bg-danger'}">${scoreA}%</span>
-                </td>
-                <td class="text-center">
-                    <span class="badge ${scoreB >= 80 ? 'bg-success' : scoreB >= 60 ? 'bg-warning' : 'bg-danger'}">${scoreB}%</span>
-                </td>
-                <td class="text-center">
-                    <span class="fw-bold ${winnerClass}">
-                        ${winner === 'Tie' ? '<i class="bi bi-dash-circle"></i>' : '<i class="bi bi-trophy"></i>'} ${winner}
-                    </span>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-        
-        const overallRow = document.createElement('tr');
-        overallRow.className = 'table-warning';
-        const overallA = results.candidateA.overall_score;
-        const overallB = results.candidateB.overall_score;
-        const overallWinner = overallA > overallB ? (results.candidateA.name || 'Resume A') : 
-                             overallB > overallA ? (results.candidateB.name || 'Resume B') : 'Tie';
-        const overallWinnerClass = overallA > overallB ? 'text-primary' : 
-                                  overallB > overallA ? 'text-success' : 'text-info';
-        
-        overallRow.innerHTML = `
-            <td class="fw-bold">Overall Score</td>
-            <td class="text-center">
-                <span class="badge ${overallA >= 80 ? 'bg-success' : overallA >= 60 ? 'bg-warning' : 'bg-danger'} fs-6">${overallA}%</span>
-            </td>
-            <td class="text-center">
-                <span class="badge ${overallB >= 80 ? 'bg-success' : overallB >= 60 ? 'bg-warning' : 'bg-danger'} fs-6">${overallB}%</span>
-            </td>
-            <td class="text-center">
-                <span class="fw-bold ${overallWinnerClass} fs-6">
-                    <i class="bi bi-award-fill"></i> ${overallWinner}
-                </span>
-            </td>
-        `;
-        tbody.appendChild(overallRow);
-    }
-
-    function useSampleJDForComparison() {
-        const sampleText = document.getElementById('sampleJDTextarea').value; 
-        document.getElementById('job_description').value = sampleText;
-        
-        const modal = bootstrap.Modal.getInstance(document.getElementById('sampleJDModal'));
-        modal.hide();
-    }
-
-    document.getElementById('export-comparison-pdf').addEventListener('click', function() {
-        showToast('PDF export feature coming soon! (Implement Flask route for PDF export)', 'info');
-    });
-
-    document.getElementById('export-comparison-csv').addEventListener('click', function() {
-        showToast('CSV export feature coming soon! (Implement Flask route for CSV export)', 'info');
-    });
-
-    document.getElementById('save-comparison').addEventListener('click', function() {
-        showToast('Comparison saved to history! (Assuming backend handles this on submission)', 'success');
-        // You might want to redirect or update history section dynamically here
-    });
-
-    document.getElementById('resumeA').addEventListener('change', function() {
-        validateFileUpload(this, 'Resume A');
-    });
-
-    document.getElementById('resumeB').addEventListener('change', function() {
-        validateFileUpload(this, 'Resume B');
-    });
-
-    function validateFileUpload(input, label) {
-        const file = input.files[0];
-        if (!file) {
-            // If file is cleared, reset the input to allow re-selection
-            input.value = ''; 
-            return;
-        }
-        
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-        
-        if (file.size > maxSize) {
-            showToast(`${label} file size exceeds 10MB limit.`, 'error');
-            input.value = ''; // Clear the invalid file selection
-            return;
-        }
-        
-        if (!allowedTypes.includes(file.type)) {
-            showToast(`${label} file type not supported. Please upload PDF or DOCX.`, 'error');
-            input.value = ''; // Clear the invalid file selection
-            return;
-        }
-        // If validation passes, no toast needed, file is ready for upload
-    }
+    {% endif %}
 });
 </script>
+
+<style>
+.circular-progress {
+    transform: rotate(-90deg);
+}
+</style>
 {% endblock %}

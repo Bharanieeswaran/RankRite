@@ -1,50 +1,498 @@
 {% extends "base.html" %}
 
-{% block title %}Resume Trends - RankRite{% endblock %}
+{% block title %}Industry Trends - Rankrite{% endblock %}
+
+{% block head %}
+<style>
+    .trends-container {
+        max-width: 1200px;
+        margin: 30px auto;
+    }
+    
+    .trends-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .trends-header h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .trends-header p {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+    }
+    
+    .trends-section {
+        margin-bottom: 50px;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .trend-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px var(--shadow-color);
+        margin-bottom: 25px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .trend-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .trend-card-header {
+        background-color: var(--bg-secondary);
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .trend-card-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .trend-card-title i {
+        margin-right: 10px;
+        color: var(--primary-color);
+    }
+    
+    .trend-card-body {
+        padding: 20px;
+    }
+    
+    .trend-list {
+        padding-left: 20px;
+    }
+    
+    .trend-list li {
+        margin-bottom: 12px;
+        line-height: 1.6;
+    }
+    
+    .trend-list li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .trend-list li strong {
+        color: var(--primary-color);
+    }
+    
+    .industry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .industry-card {
+        background-color: var(--bg-secondary);
+        border-radius: 10px;
+        padding: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .industry-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .industry-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .industry-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-right: 15px;
+    }
+    
+    .industry-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+    }
+    
+    .industry-trend {
+        margin-bottom: 10px;
+        padding-left: 20px;
+        position: relative;
+    }
+    
+    .industry-trend:before {
+        content: "•";
+        color: var(--primary-color);
+        font-weight: bold;
+        position: absolute;
+        left: 5px;
+    }
+    
+    .chart-container {
+        height: 400px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background-color: var(--bg-secondary);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
-            <div class="text-center mb-4">
-                <h1 class="display-5 text-success">📈 Resume Trends in 2025</h1>
-                <p class="text-muted">Stay ahead by understanding what employers seek today.</p>
+<div class="trends-container">
+    <div class="trends-header">
+        <h1>Industry Trends</h1>
+        <p>Stay updated with the latest trends in resume writing and job market</p>
+    </div>
+    
+    <div class="trends-section">
+        <h2 class="section-title">Current Resume Trends</h2>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="trend-card">
+                    <div class="trend-card-header">
+                        <h3 class="trend-card-title">
+                            <i class="fas fa-file-alt"></i> Formatting & Design
+                        </h3>
+                    </div>
+                    <div class="trend-card-body">
+                        <ul class="trend-list">
+                            <li><strong>Clean and minimal:</strong> Simple, clean designs with plenty of white space are preferred over elaborate templates.</li>
+                            <li><strong>One-page resumes:</strong> For most professionals, a concise one-page resume is becoming the standard.</li>
+                            <li><strong>Subtle color accents:</strong> Small touches of color to highlight sections or headings are trending.</li>
+                            <li><strong>Infographic elements:</strong> Simple charts or graphs to visually represent skills or experience are gaining popularity.</li>
+                            <li><strong>Mobile-friendly:</strong> Resumes that are easily readable on mobile devices are essential in today's job market.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="card glassmorphism p-4 shadow rounded-4 border-0">
-                <h4>💼 Top In-Demand Skills:</h4>
-                <ul>
-                    <li>🔧 Python, JavaScript, SQL</li>
-                    <li>🧠 Machine Learning & AI</li>
-                    <li>☁️ Cloud Platforms (AWS, Azure)</li>
-                    <li>🛠 DevOps Tools (Docker, Kubernetes)</li>
-                    <li>🎨 UI/UX Design and Figma</li>
-                </ul>
-                <h4 class="mt-4">📄 Resume Design Tips:</h4>
-                <ul>
-                    <li>Keep it clean, clear, and 1-2 pages max</li>
-                    <li>Use bullet points and strong action verbs</li>
-                    <li>Highlight achievements with data</li>
-                    <li>Include links to GitHub, LinkedIn, Portfolio</li>
-                </ul>
-                <h4 class="mt-4">🔍 ATS Optimization:</h4>
-                <ul>
-                    <li>Use job-specific keywords from the JD</li>
-                    <li>Don’t use too many graphics or tables</li>
-                    <li>Stick to standard section headings</li>
-                </ul>
-                <p class="mt-4">
-                    RankRite helps you stay updated with trends and tailor your resume for maximum impact.
-                </p>
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('tips') }}" class="btn btn-outline-success me-2">
-                        <i class="bi bi-lightbulb"></i> Resume Tips
-                    </a>
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
-                        <i class="bi bi-house me-2"></i>Back to Home
-                    </a>
+            
+            <div class="col-md-6">
+                <div class="trend-card">
+                    <div class="trend-card-header">
+                        <h3 class="trend-card-title">
+                            <i class="fas fa-search"></i> ATS Optimization
+                        </h3>
+                    </div>
+                    <div class="trend-card-body">
+                        <ul class="trend-list">
+                            <li><strong>Keyword optimization:</strong> Including relevant keywords from job descriptions is crucial for ATS systems.</li>
+                            <li><strong>Standard formatting:</strong> Avoiding tables, columns, and headers/footers that can confuse ATS software.</li>
+                            <li><strong>Simple file names:</strong> Using professional file names like "FirstName_LastName_Resume.pdf".</li>
+                            <li><strong>Standard section headings:</strong> Using conventional headings like "Work Experience" and "Education" that ATS recognizes.</li>
+                            <li><strong>Skills section emphasis:</strong> Dedicated skills sections with specific, relevant keywords are increasingly important.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="trend-card">
+                    <div class="trend-card-header">
+                        <h3 class="trend-card-title">
+                            <i class="fas fa-briefcase"></i> Content Trends
+                        </h3>
+                    </div>
+                    <div class="trend-card-body">
+                        <ul class="trend-list">
+                            <li><strong>Results-focused language:</strong> Emphasizing achievements and results rather than just responsibilities.</li>
+                            <li><strong>Quantifiable metrics:</strong> Including specific numbers and metrics to demonstrate impact.</li>
+                            <li><strong>Personal branding:</strong> Incorporating a personal brand statement or professional summary at the top.</li>
+                            <li><strong>Digital presence:</strong> Including links to professional online profiles like LinkedIn or personal websites.</li>
+                            <li><strong>Soft skills emphasis:</strong> Highlighting soft skills like communication, leadership, and adaptability.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="trend-card">
+                    <div class="trend-card-header">
+                        <h3 class="trend-card-title">
+                            <i class="fas fa-chart-line"></i> Emerging Trends
+                        </h3>
+                    </div>
+                    <div class="trend-card-body">
+                        <ul class="trend-list">
+                            <li><strong>Video resumes:</strong> Short video introductions are becoming more common, especially for creative roles.</li>
+                            <li><strong>Interactive resumes:</strong> Web-based resumes with interactive elements are gaining traction in tech fields.</li>
+                            <li><strong>Skill-based hiring:</strong> Focus on specific skills rather than just job titles or degrees.</li>
+                            <li><strong>Remote work experience:</strong> Highlighting remote work capabilities and experience is increasingly valuable.</li>
+                            <li><strong>Diversity and inclusion:</strong> Emphasizing commitment to diversity and participation in inclusive initiatives.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="trends-section">
+        <h2 class="section-title">Industry-Specific Trends</h2>
+        
+        <div class="industry-grid">
+            <div class="industry-card">
+                <div class="industry-header">
+                    <div class="industry-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="industry-title">Technology</h3>
+                </div>
+                <div class="industry-trend">Demand for cloud computing skills (AWS, Azure, GCP)</div>
+                <div class="industry-trend">Emphasis on cybersecurity expertise</div>
+                <div class="industry-trend">AI and machine learning experience highly valued</div>
+                <div class="industry-trend">Remote collaboration tools proficiency</div>
+                <div class="industry-trend">Portfolio showcasing projects increasingly important</div>
+            </div>
+            
+            <div class="industry-card">
+                <div class="industry-header">
+                    <div class="industry-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3 class="industry-title">Healthcare</h3>
+                </div>
+                <div class="industry-trend">Telemedicine experience increasingly valuable</div>
+                <div class="industry-trend">Health informatics and data analysis skills</div>
+                <div class="industry-trend">Mental health expertise in high demand</div>
+                <div class="industry-trend">Cross-functional collaboration abilities</div>
+                <div class="industry-trend">Adaptability to new technologies and protocols</div>
+            </div>
+            
+            <div class="industry-card">
+                <div class="industry-header">
+                    <div class="industry-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="industry-title">Finance</h3>
+                </div>
+                <div class="industry-trend">Fintech and digital currency knowledge</div>
+                <div class="industry-trend">Data analysis and visualization skills</div>
+                <div class="industry-trend">Risk management expertise</div>
+                <div class="industry-trend">ESG (Environmental, Social, Governance) experience</div>
+                <div class="industry-trend">Regulatory compliance knowledge</div>
+            </div>
+            
+            <div class="industry-card">
+                <div class="industry-header">
+                    <div class="industry-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="industry-title">Education</h3>
+                </div>
+                <div class="industry-trend">Online teaching and curriculum development experience</div>
+                <div class="industry-trend">Educational technology proficiency</div>
+                <div class="industry-trend">Personalized learning approaches</div>
+                <div class="industry-trend">Social-emotional learning expertise</div>
+                <div class="industry-trend">Cross-cultural competency</div>
+            </div>
+            
+            <div class="industry-card">
+                <div class="industry-header">
+                    <div class="industry-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3 class="industry-title">Marketing</h3>
+                </div>
+                <div class="industry-trend">Data-driven marketing skills</div>
+                <div class="industry-trend">Content creation and SEO expertise</div>
+                <div class="industry-trend">Social media analytics proficiency</div>
+                <div class="industry-trend">Influencer marketing experience</div>
+                <div class="industry-trend">Video production and editing skills</div>
+            </div>
+            
+            <div class="industry-card">
+                <div class="industry-header">
+                    <div class="industry-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="industry-title">Manufacturing</h3>
+                </div>
+                <div class="industry-trend">Automation and robotics knowledge</div>
+                <div class="industry-trend">Supply chain management expertise</div>
+                <div class="industry-trend">Quality control and assurance skills</div>
+                <div class="industry-trend">Sustainable manufacturing practices</div>
+                <div class="industry-trend">IoT (Internet of Things) integration experience</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="trends-section">
+        <h2 class="section-title">Job Market Statistics</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">87%</div>
+                    <div class="stat-label">of recruiters use LinkedIn to find candidates</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">75%</div>
+                    <div class="stat-label">of resumes are rejected by ATS systems</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">6 sec</div>
+                    <div class="stat-label">average time recruiters spend on a resume</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">40%</div>
+                    <div class="stat-label">growth in remote job postings since 2020</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-bar me-2"></i> In-Demand Skills by Industry
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="skillsChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create skills chart
+        const ctx = document.getElementById('skillsChart').getContext('2d');
+        
+        // Process activity data for the chart
+        const activityData = {
+            'resume_check': 0,
+            'resume_compare': 0,
+            'multiple_resume_analysis': 0
+        };
+        
+        {% for activity in recent_activity %}
+            activityData['{{ activity.action }}']++;
+        {% endfor %}
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Technology', 'Healthcare', 'Finance', 'Marketing', 'Education', 'Manufacturing'],
+                datasets: [
+                    {
+                        label: 'Technical Skills',
+                        data: [85, 65, 75, 60, 50, 70],
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Soft Skills',
+                        data: [60, 80, 70, 85, 90, 65],
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Digital Skills',
+                        data: [90, 75, 80, 85, 70, 60],
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Demand Level (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Industry'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Skill Demand by Industry (2023)'
+                    }
+                }
+            }
+        });
+        
+        // Add animation to cards on scroll
+        const cards = document.querySelectorAll('.trend-card, .industry-card, .stat-card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        cards.forEach(card => {
+            card.style.opacity = 0;
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Templates - Rankrite{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold mb-3">Resume Templates</h1>
+            <p class="lead text-muted">Download professional resume templates to help you stand out from the crowd</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Template 1 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-img-top position-relative">
+                    <img src="{{ url_for('static', filename='img/template-1.jpg') }}" class="img-fluid" alt="Professional Template">
+                    <div class="position-absolute top-0 end-0 p-2">
+                        <span class="badge bg-primary">Popular</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Professional Template</h5>
+                    <p class="card-text">A clean, professional template perfect for corporate and traditional industries.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark me-1">Word</span>
+                            <span class="badge bg-light text-dark">PDF</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Template 2 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-img-top">
+                    <img src="{{ url_for('static', filename='img/template-2.jpg') }}" class="img-fluid" alt="Creative Template">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Creative Template</h5>
+                    <p class="card-text">A modern, eye-catching design for creative professionals and designers.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark me-1">Word</span>
+                            <span class="badge bg-light text-dark">PDF</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Template 3 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-img-top">
+                    <img src="{{ url_for('static', filename='img/template-3.jpg') }}" class="img-fluid" alt="Technical Template">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Technical Template</h5>
+                    <p class="card-text">Optimized for technical roles with sections for skills and projects.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark me-1">Word</span>
+                            <span class="badge bg-light text-dark">PDF</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Template 4 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-img-top">
+                    <img src="{{ url_for('static', filename='img/template-4.jpg') }}" class="img-fluid" alt="Executive Template">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Executive Template</h5>
+                    <p class="card-text">Elegant design for senior professionals and executives.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark me-1">Word</span>
+                            <span class="badge bg-light text-dark">PDF</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Template 5 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-img-top">
+                    <img src="{{ url_for('static', filename='img/template-5.jpg') }}" class="img-fluid" alt="Entry Level Template">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Entry Level Template</h5>
+                    <p class="card-text">Perfect for recent graduates and those with limited work experience.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark me-1">Word</span>
+                            <span class="badge bg-light text-dark">PDF</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Template 6 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-img-top">
+                    <img src="{{ url_for('static', filename='img/template-6.jpg') }}" class="img-fluid" alt="ATS-Optimized Template">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">ATS-Optimized Template</h5>
+                    <p class="card-text">Designed to pass through Applicant Tracking Systems with ease.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-light text-dark me-1">Word</span>
+                            <span class="badge bg-light text-dark">PDF</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-info-circle-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="alert-heading">Need a custom template?</h5>
+                        <p class="mb-0">We can create a personalized resume template tailored to your specific industry and career goals. <a href="{{ url_for('contact') }}" class="alert-link">Contact us</a> for more information.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,22 +1,96 @@
 {% extends "base.html" %}
 
-{% block title %}Page Not Found - RankRite{% endblock %}
+{% block title %}Page Not Found - Rankrite{% endblock %}
 
 {% block content %}
-<div class="container text-center my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="error-page">
-                <h1 class="display-1 text-primary">404</h1>
-                <h2 class="mb-3">Page Not Found</h2>
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+        <div class="col-md-8 col-lg-6 text-center">
+            <div class="mb-4">
+                <i class="fas fa-search fa-6x text-muted mb-4"></i>
+                <h1 class="display-1 fw-bold text-primary">404</h1>
+                <h2 class="h4 fw-bold mb-3">Oops! Page Not Found</h2>
                 <p class="lead text-muted mb-4">
-                    The page you're looking for doesn't exist or has been moved.
+                    The page you're looking for doesn't exist or has been moved. 
+                    Don't worry, it happens to the best of us!
                 </p>
-                <a href="{{ url_for('index') }}" class="btn btn-primary">
-                    <i class="bi bi-house me-2"></i>Go Home
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mb-4">
+                <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-home me-2"></i>Go Home
                 </a>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Go Back
+                </a>
+            </div>
+
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-compass me-2"></i>Popular Pages
+                    </h6>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{{ url_for('tips') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-lightbulb me-2"></i>Resume Tips
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('trends') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-chart-bar me-2"></i>Industry Trends
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('templates') }}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-file-download me-2"></i>Templates
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('blog') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-blog me-2"></i>Blog
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <p class="text-muted small">
+                    <i class="fas fa-question-circle me-1"></i>
+                    Still can't find what you're looking for? 
+                    <a href="{{ url_for('contact') }}" class="text-decoration-none">Contact our support team</a>
+                </p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add some interactive animations
+    document.addEventListener('DOMContentLoaded', function() {
+        const icon = document.querySelector('.fa-search');
+        let rotation = 0;
+        
+        setInterval(() => {
+            rotation += 5;
+            icon.style.transform = `rotate(${rotation}deg)`;
+        }, 100);
+        
+        // Add floating animation
+        icon.style.animation = 'float 3s ease-in-out infinite';
+        
+        // Add CSS for floating animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
 {% endblock %}

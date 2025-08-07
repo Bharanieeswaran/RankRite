@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-
 {% block title %}Analysis History - RankRite{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-12">
@@ -46,9 +44,8 @@
                         <select class="form-select" id="filter-type">
                             <option value="">All Types</option>
                             <option value="single">Single Resume</option>
-                            <!-- Add more options if you implement distinct types like 'comparison', 'multiple' -->
-                            <!-- <option value="comparison">Comparison</option> -->
-                            <!-- <option value="multiple">Multiple Analysis</option> -->
+                            <option value="compare">Compare Resumes</option>
+                            <option value="multiple">Multiple Analysis</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -149,14 +146,12 @@
                         </table>
                     </div>
                 </div>
-
                 <!-- Grid View -->
                 <div id="history-grid-view" style="display: none;">
                     <div class="row g-4" id="history-grid">
                         <!-- Dynamic grid cards will be inserted here -->
                     </div>
                 </div>
-
                 <!-- Pagination -->
                 <nav aria-label="History pagination" class="mt-4">
                     <ul class="pagination justify-content-center" id="history-pagination">
@@ -243,15 +238,14 @@ let selectedItems = new Set();
 // Load history data on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadHistoryData();
-
+    
     // Event listeners for filters and sorting
     document.getElementById('search-history').addEventListener('input', applyFilters);
     document.getElementById('filter-type').addEventListener('change', applyFilters);
     document.getElementById('filter-date').addEventListener('change', applyFilters);
     document.getElementById('reset-filters').addEventListener('click', resetFilters);
-
     document.getElementById('toggle-view-history').addEventListener('click', toggleView);
-
+    
     document.querySelectorAll('[data-sort]').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -259,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sortHistory(sortBy);
         });
     });
-
+    
     document.getElementById('select-all').addEventListener('change', toggleSelectAll);
     document.getElementById('clear-history').addEventListener('click', clearAllHistory);
     document.getElementById('export-history').addEventListener('click', exportAllHistory);
@@ -275,8 +269,7 @@ function loadHistoryData() {
     fetch('/api/history')
         .then(response => {
             if (!response.ok) {
-                // Try to parse JSON error message if available
-                return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
@@ -410,7 +403,7 @@ function updateHistoryGrid(data) {
                     <div class="text-center mb-3">
                         <i class="bi ${typeIcon} fs-1 text-primary mb-2"></i>
                         <h6 class="fw-bold mb-1">
-                            ${item.original_filename || 'Analysis'}
+                            ${item.filename || 'Analysis'}
                             ${item.unique_filename ? `
                                 <a href="/download_resume/${item.unique_filename}" class="btn btn-sm btn-outline-info ms-2" title="Download Original Resume">
                                     <i class="bi bi-download"></i>
@@ -531,7 +524,7 @@ function showEmptyState() {
 function getTypeIcon(type) {
     switch(type) {
         case 'single': return 'bi-file-earmark-check';
-        case 'comparison': return 'bi-file-earmark-diff';
+        case 'compare': return 'bi-file-earmark-diff';
         case 'multiple': return 'bi-files';
         default: return 'bi-file-earmark';
     }
@@ -540,7 +533,7 @@ function getTypeIcon(type) {
 function getTypeBadge(type) {
     switch(type) {
         case 'single': return 'bg-primary';
-        case 'comparison': return 'bg-success';
+        case 'compare': return 'bg-success';
         case 'multiple': return 'bg-info';
         default: return 'bg-secondary';
     }
@@ -571,134 +564,270 @@ function viewHistoryDetail(id) {
     }
     
     const modal = new bootstrap.Modal(document.getElementById('historyDetailModal'));
-    document.getElementById('historyDetailModalLabel').textContent = `Analysis Details - ${item.original_filename || item.filename || 'Analysis'}`;
+    document.getElementById('historyDetailModalLabel').textContent = `Analysis Details - ${item.filename || 'Analysis'}`;
     
     const modalBody = document.getElementById('history-detail-body');
-    modalBody.innerHTML = `
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <h6>Analysis Information</h6>
-                <p class="mb-1"><strong>Type:</strong> ${item.type}</p>
-                <p class="mb-1"><strong>Filename:</strong> ${item.original_filename || item.filename || 'N/A'}</p>
-                <p class="mb-1"><strong>Job Title:</strong> ${item.job_title || 'N/A'}</p>
-                <p class="mb-1"><strong>Date:</strong> ${formatDate(item.created_at)} ${formatTime(item.created_at)}</p>
-                <p class="mb-1"><strong>Match Level:</strong> <span class="badge ${getScoreColor(item.score)}">${item.rank_level}</span></p>
-            </div>
-            <div class="col-md-6">
-                <h6>Score Breakdown</h6>
-                <div class="mb-2">
-                    <div class="d-flex justify-content-between">
-                        <small>Overall Score</small>
-                        <small>${item.score}%</small>
-                    </div>
-                    <div class="progress">
-                        <div class="progress-bar ${getScoreColor(item.score)}" style="width: ${item.score}%"></div>
-                    </div>
+    
+    // Different display based on analysis type
+    if (item.type === 'single') {
+        modalBody.innerHTML = `
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>Analysis Information</h6>
+                    <p class="mb-1"><strong>Type:</strong> ${item.type}</p>
+                    <p class="mb-1"><strong>Filename:</strong> ${item.filename || 'N/A'}</p>
+                    <p class="mb-1"><strong>Job Title:</strong> ${item.job_title || 'N/A'}</p>
+                    <p class="mb-1"><strong>Date:</strong> ${formatDate(item.created_at)} ${formatTime(item.created_at)}</p>
+                    <p class="mb-1"><strong>Match Level:</strong> <span class="badge ${getScoreColor(item.score)}">${item.rank_level}</span></p>
                 </div>
-                ${item.breakdown ? Object.entries(item.breakdown).map(([key, value]) => `
+                <div class="col-md-6">
+                    <h6>Score Breakdown</h6>
                     <div class="mb-2">
                         <div class="d-flex justify-content-between">
-                            <small class="text-capitalize">${key.replace('_', ' ')}</small>
-                            <small>${value}%</small>
+                            <small>Overall Score</small>
+                            <small>${item.score}%</small>
                         </div>
-                        <div class="progress" style="height: 4px;">
-                            <div class="progress-bar ${getScoreColor(value)}" style="width: ${value}%"></div>
+                        <div class="progress">
+                            <div class="progress-bar ${getScoreColor(item.score)}" style="width: ${item.score}%"></div>
                         </div>
                     </div>
-                `).join('') : ''}
-            </div>
-        </div>
-        
-        ${item.recommendations && item.recommendations.length > 0 ? `
-            <div class="mb-4">
-                <h6>Improvement Suggestions</h6>
-                <ul class="list-group list-group-flush">
-                    ${item.recommendations.map(rec => `
-                        <li class="list-group-item border-0 px-0">
-                            <i class="bi bi-arrow-right text-primary me-2"></i>${rec}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        ` : ''}
-
-        ${item.skill_gap_suggestions && item.skill_gap_suggestions.length > 0 ? `
-            <div class="mb-4">
-                <h6>Skill Gap Suggestions</h6>
-                <ul class="list-group list-group-flush">
-                    ${item.skill_gap_suggestions.map(rec => `
-                        <li class="list-group-item border-0 px-0">
-                            <i class="bi bi-arrow-right text-warning me-2"></i>${rec}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        ` : ''}
-        
-        ${item.matched_skills && item.matched_skills.length > 0 ? `
-            <div class="mb-4">
-                <h6>Matched Skills</h6>
-                <div class="d-flex flex-wrap gap-1">
-                    ${item.matched_skills.map(skill => `
-                        <span class="badge bg-success-subtle text-success border border-success">${skill}</span>
-                    `).join('')}
+                    ${item.breakdown ? Object.entries(item.breakdown).map(([key, value]) => `
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-capitalize">${key.replace('_', ' ')}</small>
+                                <small>${value}%</small>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar ${getScoreColor(value)}" style="width: ${value}%"></div>
+                            </div>
+                        </div>
+                    `).join('') : ''}
                 </div>
             </div>
-        ` : ''}
-
-        ${item.missing_skills && item.missing_skills.length > 0 ? `
-            <div class="mb-4">
-                <h6>Missing Skills</h6>
-                <div class="d-flex flex-wrap gap-1">
-                    ${item.missing_skills.map(skill => `
-                        <span class="badge bg-danger-subtle text-danger border border-danger">${skill}</span>
-                    `).join('')}
+            
+            ${item.recommendations && item.recommendations.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Improvement Suggestions</h6>
+                    <ul class="list-group list-group-flush">
+                        ${item.recommendations.map(rec => `
+                            <li class="list-group-item border-0 px-0">
+                                <i class="bi bi-arrow-right text-primary me-2"></i>${rec}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            ${item.skill_gap_suggestions && item.skill_gap_suggestions.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Skill Gap Suggestions</h6>
+                    <ul class="list-group list-group-flush">
+                        ${item.skill_gap_suggestions.map(rec => `
+                            <li class="list-group-item border-0 px-0">
+                                <i class="bi bi-arrow-right text-warning me-2"></i>${rec}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${item.matched_skills && item.matched_skills.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Matched Skills</h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        ${item.matched_skills.map(skill => `
+                            <span class="badge bg-success-subtle text-success border border-success">${skill}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            ${item.missing_skills && item.missing_skills.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Missing Skills</h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        ${item.missing_skills.map(skill => `
+                            <span class="badge bg-danger-subtle text-danger border border-danger">${skill}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+    } else if (item.type === 'compare') {
+        modalBody.innerHTML = `
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>Analysis Information</h6>
+                    <p class="mb-1"><strong>Type:</strong> ${item.type}</p>
+                    <p class="mb-1"><strong>Filename:</strong> ${item.filename || 'N/A'}</p>
+                    <p class="mb-1"><strong>Job Title:</strong> ${item.job_title || 'N/A'}</p>
+                    <p class="mb-1"><strong>Date:</strong> ${formatDate(item.created_at)} ${formatTime(item.created_at)}</p>
+                    <p class="mb-1"><strong>Match Level:</strong> <span class="badge ${getScoreColor(item.score)}">${item.rank_level}</span></p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Score Breakdown</h6>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <small>Overall Score</small>
+                            <small>${item.score}%</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar ${getScoreColor(item.score)}" style="width: ${item.score}%"></div>
+                        </div>
+                    </div>
+                    ${item.breakdown ? Object.entries(item.breakdown).map(([key, value]) => `
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-capitalize">${key.replace('_', ' ')}</small>
+                                <small>${value}%</small>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar ${getScoreColor(value)}" style="width: ${value}%"></div>
+                            </div>
+                        </div>
+                    `).join('') : ''}
                 </div>
             </div>
-        ` : ''}
-    `;
+            
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>This was a comparison analysis between two resumes. To see the full comparison details, please export the analysis.
+            </div>
+            
+            ${item.recommendations && item.recommendations.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Improvement Suggestions</h6>
+                    <ul class="list-group list-group-flush">
+                        ${item.recommendations.map(rec => `
+                            <li class="list-group-item border-0 px-0">
+                                <i class="bi bi-arrow-right text-primary me-2"></i>${rec}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            ${item.skill_gap_suggestions && item.skill_gap_suggestions.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Skill Gap Suggestions</h6>
+                    <ul class="list-group list-group-flush">
+                        ${item.skill_gap_suggestions.map(rec => `
+                            <li class="list-group-item border-0 px-0">
+                                <i class="bi bi-arrow-right text-warning me-2"></i>${rec}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        `;
+    } else if (item.type === 'multiple') {
+        modalBody.innerHTML = `
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>Analysis Information</h6>
+                    <p class="mb-1"><strong>Type:</strong> ${item.type}</p>
+                    <p class="mb-1"><strong>Filename:</strong> ${item.filename || 'N/A'}</p>
+                    <p class="mb-1"><strong>Job Title:</strong> ${item.job_title || 'N/A'}</p>
+                    <p class="mb-1"><strong>Date:</strong> ${formatDate(item.created_at)} ${formatTime(item.created_at)}</p>
+                    <p class="mb-1"><strong>Match Level:</strong> <span class="badge ${getScoreColor(item.score)}">${item.rank_level}</span></p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Score Breakdown</h6>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <small>Overall Score</small>
+                            <small>${item.score}%</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar ${getScoreColor(item.score)}" style="width: ${item.score}%"></div>
+                        </div>
+                    </div>
+                    ${item.breakdown ? Object.entries(item.breakdown).map(([key, value]) => `
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-capitalize">${key.replace('_', ' ')}</small>
+                                <small>${value}%</small>
+                            </div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar ${getScoreColor(value)}" style="width: ${value}%"></div>
+                            </div>
+                        </div>
+                    `).join('') : ''}
+                </div>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>This was a multiple resume analysis. This resume was ranked #${historyData.filter(h => h.job_title === item.job_title && new Date(h.created_at) <= new Date(item.created_at)).sort((a, b) => b.score - a.score).findIndex(h => h.id === item.id) + 1} out of ${historyData.filter(h => h.job_title === item.job_title && new Date(h.created_at) <= new Date(item.created_at)).length} resumes.
+            </div>
+            
+            ${item.recommendations && item.recommendations.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Improvement Suggestions</h6>
+                    <ul class="list-group list-group-flush">
+                        ${item.recommendations.map(rec => `
+                            <li class="list-group-item border-0 px-0">
+                                <i class="bi bi-arrow-right text-primary me-2"></i>${rec}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            ${item.skill_gap_suggestions && item.skill_gap_suggestions.length > 0 ? `
+                <div class="mb-4">
+                    <h6>Skill Gap Suggestions</h6>
+                    <ul class="list-group list-group-flush">
+                        ${item.skill_gap_suggestions.map(rec => `
+                            <li class="list-group-item border-0 px-0">
+                                <i class="bi bi-arrow-right text-warning me-2"></i>${rec}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        `;
+    }
     
     // Set data attributes for rerun and export buttons in modal footer
     document.getElementById('rerun-analysis').setAttribute('data-analysis-id', item.id);
     document.getElementById('rerun-analysis').setAttribute('data-resume-id', item.resume_id);
     document.getElementById('rerun-analysis').setAttribute('data-job-description-id', item.job_description_id);
-
     document.getElementById('export-detail').setAttribute('data-analysis-id', item.id);
-
     modal.show();
 }
 
 function exportHistoryItem(id) {
-    // This button should likely trigger the PDF export for the specific analysis
+    // This button should trigger the PDF export for the specific analysis
     window.location.href = `/export_pdf/${id}`;
 }
 
 function deleteHistoryItem(id) {
     if (confirm('Are you sure you want to delete this analysis? This cannot be undone.')) {
         showSpinner('Deleting analysis...', 'Please wait.');
-        fetch(`/api/history/${id}`, { method: 'DELETE' })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                hideSpinner();
-                if (data.success) {
-                    historyData = historyData.filter(item => item.id.toString() !== id.toString());
-                    applyFilters(); // Re-apply filters to update filteredHistory and display
-                    updateStats();
-                    showToast('Analysis deleted successfully!', 'success');
-                } else {
-                    showToast(data.error || 'Failed to delete analysis.', 'error');
-                }
-            })
-            .catch(error => {
-                hideSpinner();
-                console.error('Error:', error);
-                showToast('An error occurred while deleting: ' + error.message, 'error');
-            });
+        
+        fetch(`/api/history/${id}`, { 
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideSpinner();
+            if (data.success) {
+                historyData = historyData.filter(item => item.id.toString() !== id.toString());
+                applyFilters(); // Re-apply filters to update filteredHistory and display
+                updateStats();
+                showToast('Analysis deleted successfully!', 'success');
+            } else {
+                showToast(data.error || 'Failed to delete analysis.', 'error');
+            }
+        })
+        .catch(error => {
+            hideSpinner();
+            console.error('Error:', error);
+            showToast('An error occurred while deleting: ' + error.message, 'error');
+        });
     }
 }
 
@@ -812,10 +941,8 @@ function updateSelectAllCheckboxState() {
         selectAllCheckbox.indeterminate = false;
         return;
     }
-
     const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
     const anyChecked = Array.from(itemCheckboxes).some(cb => cb.checked);
-
     if (allChecked) {
         selectAllCheckbox.checked = true;
         selectAllCheckbox.indeterminate = false;
@@ -828,16 +955,9 @@ function updateSelectAllCheckboxState() {
     }
 }
 
-
 function updateBulkActionsModalCount() {
     document.getElementById('selected-count').textContent = selectedItems.size;
-    if (selectedItems.size > 0) {
-        const bulkModal = new bootstrap.Modal(document.getElementById('bulkActionsModal'));
-        // Only show if not already shown, or if the user explicitly clicks a bulk action button
-        // For now, let's just update the count. Showing the modal automatically might be annoying.
-    }
 }
-
 
 // Sorting functionality
 function sortHistory(sortBy) {
@@ -846,7 +966,7 @@ function sortHistory(sortBy) {
             filteredHistory.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             break;
         case 'date-asc':
-            filteredHistory.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            filteredHistory.sort((a, b) => new Date(a.created_at) - new Date(a.created_at));
             break;
         case 'score-desc':
             filteredHistory.sort((a, b) => b.score - a.score);
@@ -867,31 +987,36 @@ function sortHistory(sortBy) {
 function clearAllHistory() {
     if (confirm('Are you sure you want to clear all history? This action cannot be undone.')) {
         showSpinner('Clearing history...', 'Please wait.');
-        fetch('/api/history/clear', { method: 'DELETE' })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                hideSpinner();
-                if (data.success) {
-                    historyData = [];
-                    filteredHistory = [];
-                    selectedItems.clear();
-                    showEmptyState();
-                    updateStats();
-                    showToast('History cleared successfully!', 'success');
-                } else {
-                    showToast(data.error || 'Failed to clear history.', 'error');
-                }
-            })
-            .catch(error => {
-                hideSpinner();
-                console.error('Error:', error);
-                showToast('An error occurred while clearing history: ' + error.message, 'error');
-            });
+        
+        fetch('/api/history/clear', { 
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideSpinner();
+            if (data.success) {
+                historyData = [];
+                filteredHistory = [];
+                selectedItems.clear();
+                showEmptyState();
+                updateStats();
+                showToast('History cleared successfully!', 'success');
+            } else {
+                showToast(data.error || 'Failed to clear history.', 'error');
+            }
+        })
+        .catch(error => {
+            hideSpinner();
+            handleRequestError(error, 'An error occurred while clearing history');
+        });
     }
 }
 
@@ -924,6 +1049,7 @@ function bulkDelete() {
     }
     if (confirm(`Are you sure you want to delete ${selectedItems.size} selected items? This cannot be undone.`)) {
         showSpinner('Deleting selected items...', 'Please wait.');
+        
         fetch('/api/history/bulk_delete', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -950,8 +1076,7 @@ function bulkDelete() {
         })
         .catch(error => {
             hideSpinner();
-            console.error('Error:', error);
-            showToast('An error occurred during bulk delete: ' + error.message, 'error');
+            handleRequestError(error, 'An error occurred during bulk delete');
         });
     }
 }
@@ -961,7 +1086,6 @@ function rerunAnalysis() {
     const analysisId = this.getAttribute('data-analysis-id');
     const resumeId = this.getAttribute('data-resume-id');
     const jobDescriptionId = this.getAttribute('data-job-description-id');
-
     if (!analysisId || !resumeId || !jobDescriptionId) {
         showToast('Cannot re-run: Missing analysis, resume, or job description ID.', 'error');
         return;
@@ -979,7 +1103,7 @@ function exportDetail() {
         showToast('Cannot export: Missing analysis ID.', 'error');
         return;
     }
-    // This button should likely trigger the PDF export for the specific analysis
+    // This button should trigger the PDF export for the specific analysis
     window.location.href = `/export_pdf/${analysisId}`;
 }
 </script>

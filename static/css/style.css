@@ -35,7 +35,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
   transition: var(--transition-base);
-  padding-top: 76px; /* Account for fixed navbar */
+  padding-top: 76px;
 }
 
 /* Main content area */
@@ -111,7 +111,6 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,0 1000,300 1000,1000 0,700"/></svg>');
   background-size: cover;
 }
 
@@ -354,10 +353,23 @@ body {
   color: white;
 }
 
-.rank-1 { background: #ffd700; color: #333; }
-.rank-2 { background: #c0c0c0; color: #333; }
-.rank-3 { background: #cd7f32; }
-.rank-other { background: var(--bs-secondary); }
+.rank-1 { 
+  background: #ffd700; 
+  color: #333; 
+}
+
+.rank-2 { 
+  background: #c0c0c0; 
+  color: #333; 
+}
+
+.rank-3 { 
+  background: #cd7f32; 
+}
+
+.rank-other { 
+  background: var(--bs-secondary); 
+}
 
 /* Statistics Cards */
 .stat-card {
@@ -438,53 +450,6 @@ body {
 .pagination .page-item.active .page-link {
   background: var(--bs-primary);
   border-color: var(--bs-primary);
-}
-
-/* Responsive Utilities */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-  }
-  
-  .hero-subtitle {
-    font-size: 1.1rem;
-  }
-  
-  .upload-area {
-    padding: 2rem 1rem;
-  }
-  
-  .score-circle {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .score-text {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 576px) {
-  body {
-    padding-top: 70px;
-  }
-  
-  .hero-section {
-    padding: 60px 0;
-  }
-  
-  .hero-title {
-    font-size: 2rem;
-  }
-  
-  .card {
-    margin-bottom: 1rem;
-  }
-  
-  .btn-lg {
-    padding: 0.5rem 1.5rem;
-    font-size: 1rem;
-  }
 }
 
 /* Dark Mode Specific Styles */
@@ -605,6 +570,53 @@ body {
 
 .shadow-sm-hover:hover {
   box-shadow: var(--card-shadow-hover);
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .upload-area {
+    padding: 2rem 1rem;
+  }
+  
+  .score-circle {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .score-text {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    padding-top: 70px;
+  }
+  
+  .hero-section {
+    padding: 60px 0;
+  }
+  
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .btn-lg {
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+  }
 }
 
 /* Print Styles */

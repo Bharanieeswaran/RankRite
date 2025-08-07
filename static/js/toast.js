@@ -1,332 +1,344 @@
-/**
- * Toast Notification System
- */
-
-(function() {
-    'use strict';
-
-    // Configuration
-    const TOAST_CONTAINER_ID = 'toast-container';
-    const DEFAULT_DURATION = 5000; // 5 seconds
-    const MAX_TOASTS = 5;
-    
-    let toastContainer = null;
-    let toastCounter = 0;
-    let activeToasts = new Map();
-
-    // Toast types configuration
-    const TOAST_TYPES = {
-        success: {
-            icon: 'bi-check-circle-fill',
-            bgClass: 'bg-success',
-            textClass: 'text-white'
-        },
-        error: {
-            icon: 'bi-exclamation-triangle-fill',
-            bgClass: 'bg-danger',
-            textClass: 'text-white'
-        },
-        warning: {
-            icon: 'bi-exclamation-triangle',
-            bgClass: 'bg-warning',
-            textClass: 'text-dark'
-        },
-        info: {
-            icon: 'bi-info-circle-fill',
-            bgClass: 'bg-info',
-            textClass: 'text-white'
-        },
-        primary: {
-            icon: 'bi-bell-fill',
-            bgClass: 'bg-primary',
-            textClass: 'text-white'
-        }
-    };
-
-    // Initialize toast system
-    function initToasts() {
-        toastContainer = document.querySelector('.toast-container');
-        
-        if (!toastContainer) {
-            createToastContainer();
-        }
+// Toast notification system
+class ToastManager {
+    constructor() {
+        this.toasts = [];
+        this.container = null;
+        this.init();
     }
 
-    // Create toast container if it doesn't exist
-    function createToastContainer() {
-        const container = document.createElement('div');
-        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        container.style.zIndex = '1060';
-        document.body.appendChild(container);
-        toastContainer = container;
+    init() {
+        this.createContainer();
+        this.setupStyles();
     }
 
-    // Create toast element
-    function createToastElement(message, type = 'info', duration = DEFAULT_DURATION, title = null) {
-        const toastId = `toast-${++toastCounter}`;
-        const typeConfig = TOAST_TYPES[type] || TOAST_TYPES.info;
+    createContainer() {
+        if (document.getElementById('toast-container')) return;
         
-        // Auto-generate title if not provided
-        if (!title) {
-            title = type.charAt(0).toUpperCase() + type.slice(1);
-        }
+        this.container = document.createElement('div');
+        this.container.id = 'toast-container';
+        this.container.className = 'toast-container';
+        document.body.appendChild(this.container);
+    }
 
-        const toastHtml = `
-            <div id="${toastId}" class="toast ${typeConfig.bgClass} ${typeConfig.textClass}" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header ${typeConfig.bgClass} ${typeConfig.textClass} border-0">
-                    <i class="bi ${typeConfig.icon} me-2"></i>
-                    <strong class="me-auto">${escapeHtml(title)}</strong>
-                    <small class="opacity-75">${getTimeString()}</small>
-                    <button type="button" class="btn-close btn-close-${typeConfig.textClass === 'text-white' ? 'white' : 'dark'}" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    ${escapeHtml(message)}
-                </div>
-            </div>
+    setupStyles() {
+        if (document.getElementById('toast-styles')) return;
+        
+        const styles = document.createElement('style');
+        styles.id = 'toast-styles';
+        styles.textContent = `
+            .toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                max-width: 400px;
+            }
+            
+            .toast {
+                background: var(--toast-bg, #333);
+                color: var(--toast-text, #fff);
+                padding: 12px 16px;
+                margin-bottom: 10px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                min-width: 300px;
+                word-wrap: break-word;
+            }
+            
+            .toast.show {
+                transform: translateX(0);
+            }
+            
+            .toast.success {
+                background: var(--success-color, #10b981);
+                border-left: 4px solid var(--success-border, #059669);
+            }
+            
+            .toast.error {
+                background: var(--error-color, #ef4444);
+                border-left: 4px solid var(--error-border, #dc2626);
+            }
+            
+            .toast.warning {
+                background: var(--warning-color, #f59e0b);
+                border-left: 4px solid var(--warning-border, #d97706);
+                color: var(--warning-text, #1f2937);
+            }
+            
+            .toast.info {
+                background: var(--info-color, #3b82f6);
+                border-left: 4px solid var(--info-border, #2563eb);
+            }
+            
+            .toast-content {
+                flex: 1;
+                margin-right: 10px;
+            }
+            
+            .toast-title {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+            
+            .toast-message {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+            
+            .toast-close {
+                background: none;
+                border: none;
+                color: inherit;
+                cursor: pointer;
+                font-size: 18px;
+                padding: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+            
+            .toast-close:hover {
+                opacity: 1;
+            }
+            
+            .toast-icon {
+                margin-right: 8px;
+                font-size: 16px;
+            }
+            
+            @media (max-width: 480px) {
+                .toast-container {
+                    left: 10px;
+                    right: 10px;
+                    top: 10px;
+                }
+                
+                .toast {
+                    min-width: auto;
+                    width: 100%;
+                }
+            }
         `;
-
-        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-        return document.getElementById(toastId);
+        document.head.appendChild(styles);
     }
 
-    // Show toast notification
-    function showToast(message, type = 'info', duration = DEFAULT_DURATION, title = null) {
-        if (!toastContainer) {
-            initToasts();
-        }
-
-        // Limit number of active toasts
-        if (activeToasts.size >= MAX_TOASTS) {
-            const oldestToast = activeToasts.keys().next().value;
-            hideToast(oldestToast);
-        }
-
-        // Create and show toast
-        const toastElement = createToastElement(message, type, duration, title);
-        const bsToast = new bootstrap.Toast(toastElement, {
-            autohide: duration > 0,
-            delay: duration
+    show(message, type = 'info', options = {}) {
+        const toastId = 'toast-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        
+        const defaultOptions = {
+            duration: 4000,
+            closable: true,
+            title: null,
+            icon: this.getIcon(type),
+            position: 'top-right'
+        };
+        
+        const config = { ...defaultOptions, ...options };
+        
+        const toast = this.createToastElement(toastId, message, type, config);
+        this.container.appendChild(toast);
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
         });
-
-        // Store reference
-        activeToasts.set(toastElement.id, {
-            element: toastElement,
-            bsToast: bsToast,
+        
+        // Auto-remove after duration
+        if (config.duration > 0) {
+            setTimeout(() => {
+                this.remove(toastId);
+            }, config.duration);
+        }
+        
+        // Store toast reference
+        this.toasts.push({
+            id: toastId,
+            element: toast,
             type: type
         });
-
-        // Show toast with animation
-        toastElement.style.opacity = '0';
-        bsToast.show();
         
-        // Fade in animation
+        return toastId;
+    }
+
+    createToastElement(id, message, type, config) {
+        const toast = document.createElement('div');
+        toast.id = id;
+        toast.className = `toast ${type}`;
+        
+        const content = document.createElement('div');
+        content.className = 'toast-content';
+        
+        if (config.title) {
+            const title = document.createElement('div');
+            title.className = 'toast-title';
+            title.textContent = config.title;
+            content.appendChild(title);
+        }
+        
+        const messageEl = document.createElement('div');
+        messageEl.className = 'toast-message';
+        
+        if (config.icon) {
+            const icon = document.createElement('span');
+            icon.className = 'toast-icon';
+            icon.innerHTML = config.icon;
+            messageEl.appendChild(icon);
+        }
+        
+        const messageText = document.createElement('span');
+        messageText.textContent = message;
+        messageEl.appendChild(messageText);
+        
+        content.appendChild(messageEl);
+        toast.appendChild(content);
+        
+        if (config.closable) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'toast-close';
+            closeBtn.innerHTML = '×';
+            closeBtn.setAttribute('aria-label', 'Close notification');
+            closeBtn.addEventListener('click', () => this.remove(id));
+            toast.appendChild(closeBtn);
+        }
+        
+        return toast;
+    }
+
+    remove(toastId) {
+        const toastIndex = this.toasts.findIndex(t => t.id === toastId);
+        if (toastIndex === -1) return;
+        
+        const toast = this.toasts[toastIndex];
+        toast.element.classList.remove('show');
+        
         setTimeout(() => {
-            toastElement.style.transition = 'opacity 0.3s ease-in-out';
-            toastElement.style.opacity = '1';
-        }, 50);
-
-        // Clean up when toast is hidden
-        toastElement.addEventListener('hidden.bs.toast', () => {
-            activeToasts.delete(toastElement.id);
-            toastElement.remove();
-        });
-
-        // Add click-to-dismiss functionality
-        toastElement.addEventListener('click', (e) => {
-            if (!e.target.closest('.btn-close')) {
-                bsToast.hide();
+            if (toast.element && toast.element.parentNode) {
+                toast.element.parentNode.removeChild(toast.element);
             }
-        });
-
-        return toastElement.id;
+            this.toasts.splice(toastIndex, 1);
+        }, 300);
     }
 
-    // Hide specific toast
-    function hideToast(toastId) {
-        const toastData = activeToasts.get(toastId);
-        if (toastData) {
-            toastData.bsToast.hide();
-        }
-    }
-
-    // Hide all toasts
-    function hideAllToasts() {
-        activeToasts.forEach((toastData) => {
-            toastData.bsToast.hide();
-        });
-    }
-
-    // Convenience methods for different toast types
-    function showSuccess(message, duration = DEFAULT_DURATION, title = 'Success') {
-        return showToast(message, 'success', duration, title);
-    }
-
-    function showError(message, duration = 8000, title = 'Error') {
-        return showToast(message, 'error', duration, title);
-    }
-
-    function showWarning(message, duration = 6000, title = 'Warning') {
-        return showToast(message, 'warning', duration, title);
-    }
-
-    function showInfo(message, duration = DEFAULT_DURATION, title = 'Info') {
-        return showToast(message, 'info', duration, title);
-    }
-
-    // Show toast with progress bar
-    function showProgressToast(message, type = 'info', title = 'Progress') {
-        const toastId = showToast(message, type, 0, title); // Don't auto-hide
-        const toastElement = document.getElementById(toastId);
-        
-        // Add progress bar
-        const progressHtml = `
-            <div class="progress mt-2" style="height: 4px;">
-                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
-            </div>
-        `;
-        
-        const toastBody = toastElement.querySelector('.toast-body');
-        toastBody.insertAdjacentHTML('beforeend', progressHtml);
-        
-        const progressBar = toastBody.querySelector('.progress-bar');
-        
-        return {
-            id: toastId,
-            updateProgress: (percent) => {
-                progressBar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
-            },
-            updateMessage: (newMessage) => {
-                const messageElement = toastBody.firstChild;
-                if (messageElement.nodeType === Node.TEXT_NODE) {
-                    messageElement.textContent = newMessage;
-                }
-            },
-            complete: () => {
-                progressBar.style.width = '100%';
-                setTimeout(() => hideToast(toastId), 1000);
-            },
-            hide: () => hideToast(toastId)
+    getIcon(type) {
+        const icons = {
+            success: '✓',
+            error: '✕',
+            warning: '⚠',
+            info: 'ℹ'
         };
+        return icons[type] || icons.info;
     }
 
-    // Show toast for form validation errors
-    function showFormErrors(errors) {
-        if (Array.isArray(errors)) {
-            errors.forEach((error, index) => {
-                setTimeout(() => {
-                    showError(error, 6000);
-                }, index * 200); // Stagger the display
-            });
-        } else if (typeof errors === 'string') {
-            showError(errors);
-        } else if (typeof errors === 'object') {
-            Object.entries(errors).forEach(([field, error], index) => {
-                setTimeout(() => {
-                    showError(`${field}: ${error}`, 6000);
-                }, index * 200);
-            });
-        }
+    // Convenience methods
+    success(message, options = {}) {
+        return this.show(message, 'success', options);
     }
 
-    // Show toast for file upload status
-    function showFileUploadToast(fileName, status = 'uploading') {
-        const messages = {
-            uploading: `Uploading ${fileName}...`,
-            success: `${fileName} uploaded successfully`,
-            error: `Failed to upload ${fileName}`
-        };
-        
-        const types = {
-            uploading: 'info',
-            success: 'success',
-            error: 'error'
-        };
-        
-        return showToast(messages[status], types[status]);
+    error(message, options = {}) {
+        return this.show(message, 'error', { ...options, duration: 6000 });
     }
 
-    // Utility functions
-    function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, (m) => map[m]);
+    warning(message, options = {}) {
+        return this.show(message, 'warning', options);
     }
 
-    function getTimeString() {
-        return new Date().toLocaleTimeString('en-US', {
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit'
+    info(message, options = {}) {
+        return this.show(message, 'info', options);
+    }
+
+    // Clear all toasts
+    clear() {
+        this.toasts.forEach(toast => {
+            this.remove(toast.id);
         });
     }
 
-    // Auto-show toasts for flash messages
-    function handleFlashMessages() {
-        const flashMessages = document.querySelectorAll('.alert[data-toast]');
-        
-        flashMessages.forEach((alert) => {
-            const message = alert.textContent.trim();
-            const type = alert.classList.contains('alert-success') ? 'success' :
-                        alert.classList.contains('alert-danger') ? 'error' :
-                        alert.classList.contains('alert-warning') ? 'warning' : 'info';
-            
-            showToast(message, type);
-            alert.remove(); // Remove the original alert
+    // Show toast from Flask flash messages
+    showFlashMessages() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(flash => {
+            const message = flash.textContent.trim();
+            const type = flash.getAttribute('data-category') || 'info';
+            this.show(message, type);
+            flash.remove();
         });
     }
+}
 
-    // Keyboard shortcuts
-    function handleKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Shift + H to hide all toasts
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'H') {
-                e.preventDefault();
-                hideAllToasts();
-            }
-            
-            // ESC to hide the newest toast
-            if (e.key === 'Escape' && activeToasts.size > 0) {
-                const newestToastId = Array.from(activeToasts.keys()).pop();
-                hideToast(newestToastId);
-            }
-        });
-    }
+// Initialize toast manager and handle Flask flash messages
+document.addEventListener('DOMContentLoaded', () => {
+    window.toast = new ToastManager();
+    
+    // Show any Flask flash messages
+    window.toast.showFlashMessages();
+    
+    // Listen for custom toast events
+    document.addEventListener('showToast', (e) => {
+        const { message, type, options } = e.detail;
+        window.toast.show(message, type, options);
+    });
+});
 
-    // Initialize when DOM is loaded
-    function init() {
-        initToasts();
-        handleFlashMessages();
-        handleKeyboardShortcuts();
-        
-        // Listen for custom toast events
-        document.addEventListener('showToast', (e) => {
-            const { message, type, duration, title } = e.detail;
-            showToast(message, type, duration, title);
-        });
-    }
-
-    // Initialize
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+// Global helper functions
+window.showToast = (message, type = 'info', options = {}) => {
+    if (window.toast) {
+        return window.toast.show(message, type, options);
     } else {
-        init();
+        console.error('Toast manager not initialized');
+        return null;
     }
+};
 
-    // Export functions for global use
-    window.showToast = showToast;
-    window.showSuccess = showSuccess;
-    window.showError = showError;
-    window.showWarning = showWarning;
-    window.showInfo = showInfo;
-    window.showProgressToast = showProgressToast;
-    window.showFormErrors = showFormErrors;
-    window.showFileUploadToast = showFileUploadToast;
-    window.hideToast = hideToast;
-    window.hideAllToasts = hideAllToasts;
+window.showSuccess = (message, options = {}) => {
+    return window.showToast(message, 'success', options);
+};
 
-})();
+window.showError = (message, options = {}) => {
+    return window.showToast(message, 'error', { ...options, duration: 6000 });
+};
+
+window.showWarning = (message, options = {}) => {
+    return window.showToast(message, 'warning', options);
+};
+
+window.showInfo = (message, options = {}) => {
+    return window.showToast(message, 'info', options);
+};
+
+// Standardized error handler for fetch/ajax requests
+window.handleRequestError = (error, defaultMessage = 'An error occurred') => {
+    console.error('Request error:', error);
+    
+    let errorMessage = defaultMessage;
+    
+    if (error.response && error.response.data && error.response.data.message) {
+        // Axios-style error
+        errorMessage = error.response.data.message;
+    } else if (error.responseJSON && error.responseJSON.message) {
+        // jQuery ajax error
+        errorMessage = error.responseJSON.message;
+    } else if (error.message) {
+        // Standard Error object
+        errorMessage = error.message;
+    } else if (typeof error === 'string') {
+        // String error
+        errorMessage = error;
+    }
+    
+    window.showError(errorMessage);
+    return errorMessage;
+};
+
+// Export for module use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ToastManager;
+}

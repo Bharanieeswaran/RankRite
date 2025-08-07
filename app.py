@@ -152,13 +152,6 @@ def forgot_password():
     flash('Password reset functionality is not yet implemented. Please contact support.', 'warning')
     return render_template('forgot_password.html')
 
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    """Renders the user dashboard."""
-    user_stats = get_user_stats(current_user.id)
-    return render_template('dashboard.html', title='Dashboard', user_stats=user_stats)
-
 
 @app.route('/check', methods=['GET', 'POST'])
 def check_resume():
@@ -355,356 +348,372 @@ def check_resume():
 
     return render_template('check.html', show_results=show_results)
 
-
 @app.route('/compare', methods=['GET', 'POST'])
 @login_required
 def compare_resumes():
     """Handles comparison of two resumes against a single job description."""
-    comparison_results = []
-    show_results = False
-
     if request.method == 'POST':
+        # Get form data
         jd_title = request.form.get('jd_title', 'Unnamed Job Description')
         job_description_content = request.form.get('job_description')
-
+        
+        # Validate job description
         if not job_description_content:
             flash('Job Description is required for comparison.', 'danger')
-            return render_template('compare.html', show_results=False)
+            return redirect(url_for('compare_resumes'))
 
-        resume_files = []
-        if 'resumeA' in request.files:
-            resume_files.append(request.files['resumeA'])
-        if 'resumeB' in request.files:
-            resume_files.append(request.files['resumeB'])
+        # Get uploaded files
+        resumeA = request.files.get('resumeA')
+        resumeB = request.files.get('resumeB')
+        candidateA_name = request.form.get('candidateA', 'Resume 1')
+        candidateB_name = request.form.get('candidateB', 'Resume 2')
+        
+        # Validate files
+        if not (resumeA and resumeB) or resumeA.filename == '' or resumeB.filename == '':
+            flash('Please upload both resumes for comparison.', 'danger')
+            return redirect(url_for('compare_resumes'))
+        
+        if not (allowed_file(resumeA.filename) and allowed_file(resumeB.filename)):
+            flash('Invalid file type. Allowed types are: PDF, DOCX, DOC.', 'danger')
+            return redirect(url_for('compare_resumes'))
 
-        candidateA_name = request.form.get('candidateA', 'Resume A')
-        candidateB_name = request.form.get('candidateB', 'Resume B')
-        candidate_names = [candidateA_name, candidateB_name]
-
-
-        if len(resume_files) < 2:
-            flash('Please upload at least two resumes for comparison.', 'danger')
-            return render_template('compare.html', show_results=False)
-
-        processed_resumes_data = []
-        uploaded_paths = [] # To keep track of files to delete
-
-        for i, resume_file in enumerate(resume_files):
-            if resume_file and allowed_file(resume_file.filename):
-                original_filename = secure_filename(resume_file.filename)
-                unique_filename = f"{secrets.token_hex(8)}_{original_filename}"
-                resume_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-
-                try:
-                    resume_file.save(resume_path)
-                    uploaded_paths.append(resume_path) # Keep track for potential deletion if not permanent
-
-                    resume_text = resume_processor.extract_text_from_file(resume_path)
-                    if not resume_text:
-                        flash(f'Could not extract text from {original_filename}. Skipping.', 'warning')
-                        continue # Skip this file and proceed with others
-
-                    resume_skills = resume_processor.extract_skills(resume_text)
-                    resume_experience_years = resume_processor.extract_experience(resume_text)
-                    resume_education = resume_processor.extract_education(resume_text)
-                    resume_contact_info = resume_processor.extract_contact_info(resume_text) # Extract contact info for Resume DB object
-
-                    processed_resumes_data.append({
-                        'id': i, # Temporary ID for sorting within this request
-                        'filename': original_filename,
-                        'unique_filename': unique_filename, # Pass unique filename
-                        'file_path': resume_path, # Pass the path
-                        'content': resume_text, # Pass full content
-                        'file_size': resume_file.content_length,
-                        'file_type': original_filename.rsplit('.', 1)[1].upper(),
-                        'skills': resume_skills,
-                        'experience': resume_experience_years,
-                        'education': resume_education,
-                        'contact_info': resume_contact_info,
-                        'candidate_name': candidate_names[i] if i < len(candidate_names) else f"Candidate {i+1}"
-                    })
-                except (RuntimeError, NotImplementedError, ValueError) as e:
-                    flash(f"Error processing {original_filename}: {e}. Skipping.", 'danger')
-                except Exception as e:
-                    flash(f"An unexpected error occurred with {original_filename}: {e}. Skipping.", 'danger')
-            else:
-                flash(f"Invalid file type for {resume_file.filename}. Allowed types are: PDF, DOCX, DOC. Skipping.", 'danger')
-
-        if not processed_resumes_data:
-            flash('No valid resumes were processed for comparison. Please check file types.', 'danger')
-            return render_template('compare.html', show_results=False)
-
-        # Perform ranking
-        ranked_resumes = resume_processor.rank_multiple_resumes(processed_resumes_data, job_description_content)
-
-        # Store Job Description (if not already existing)
-        job_desc_db_obj = JobDescription.query.filter(
-            JobDescription.content == job_description_content,
-            JobDescription.created_by == current_user.id
-        ).first()
-
-        if not job_desc_db_obj:
-            job_desc_db_obj = JobDescription(
-                title=jd_title,
-                content=job_description_content,
-                created_by=current_user.id
-            )
-            job_desc_db_obj.set_skills_list(resume_processor.extract_skills(job_description_content))
-            db.session.add(job_desc_db_obj)
-            db.session.flush() # Get ID before commit
-
-        # Prepare results for display and save each analysis
-        candidate_A_analysis = None
-        candidate_B_analysis = None
-
-        for i, ranked_resume in enumerate(ranked_resumes):
-            original_data = next(item for item in processed_resumes_data if item['id'] == ranked_resume['resume_id'])
-
-            # Save Resume to DB
-            existing_resume = Resume.query.filter(
-                Resume.filename == original_data['unique_filename'], # Check by unique filename
-                Resume.uploaded_by == current_user.id
-            ).first()
-
-            if existing_resume:
-                resume_db_obj = existing_resume
-            else:
-                resume_db_obj = Resume(
-                    filename=original_data['unique_filename'],
-                    original_filename=original_data['filename'],
-                    file_path=original_data['file_path'],
-                    content=original_data['content'],
-                    file_size=original_data['file_size'],
-                    file_type=original_data['file_type'],
-                    experience_years=original_data['experience']
-                )
-                resume_db_obj.uploaded_by = current_user.id if current_user.is_authenticated else None
-                resume_db_obj.set_skills_list(original_data['skills'])
-                resume_db_obj.set_education_list(original_data['education'])
-                resume_db_obj.set_contact_info(original_data['contact_info'])
-                db.session.add(resume_db_obj)
-                db.session.flush()
-
-            analysis_db_obj = ResumeAnalysis(
-                resume_id=resume_db_obj.id,
-                job_description_id=job_desc_db_obj.id,
-                user_id=current_user.id,
-                overall_score=ranked_resume['analysis']['overall_score'],
-                skills_score=ranked_resume['analysis']['skills_score'],
-                experience_score=ranked_resume['analysis']['experience_score'],
-                education_score=ranked_resume['analysis']['education_score'],
-                improvements="\n".join(resume_processor.generate_improvement_suggestions(ranked_resume['analysis'])),
-                skill_gap_suggestions="\n".join(resume_processor.generate_skill_gap_suggestions(ranked_resume['analysis']['missing_skills'], ranked_resume['analysis']['matched_skills']))
-            )
-            analysis_db_obj.set_matched_skills(ranked_resume['analysis']['matched_skills'])
-            analysis_db_obj.set_missing_skills(ranked_resume['analysis']['missing_skills'])
-            db.session.add(analysis_db_obj)
-
-            # Assign to candidate A or B for display
-            display_data = {
-                'name': original_data['candidate_name'],
-                'overall_score': round(ranked_resume['analysis']['overall_score'] * 100, 1), # Scale to 0-100
-                'breakdown': {
-                    'skills': round(ranked_resume['analysis']['skills_score'] * 100, 1),
-                    'experience': round(ranked_resume['analysis']['experience_score'] * 100, 1),
-                    'education': round(ranked_resume['analysis']['education_score'] * 100, 1)
-                },
-                'strengths': resume_processor.generate_improvement_suggestions(ranked_resume['analysis']), # Re-use for strengths
-                'weaknesses': resume_processor.generate_skill_gap_suggestions(ranked_resume['analysis']['missing_skills'], ranked_resume['analysis']['matched_skills'])
-            }
-
-            if i == 0: # Assuming first file is Resume A
-                candidate_A_analysis = display_data
-            elif i == 1: # Assuming second file is Resume B
-                candidate_B_analysis = display_data
-
+        # Process files
         try:
+            # Process Resume A
+            original_filenameA = secure_filename(resumeA.filename)
+            unique_filenameA = f"{secrets.token_hex(8)}_{original_filenameA}"
+            resume_pathA = os.path.join(app.config['UPLOAD_FOLDER'], unique_filenameA)
+            resumeA.save(resume_pathA)
+            resume_textA = resume_processor.extract_text_from_file(resume_pathA)
+            
+            # Process Resume B
+            original_filenameB = secure_filename(resumeB.filename)
+            unique_filenameB = f"{secrets.token_hex(8)}_{original_filenameB}"
+            resume_pathB = os.path.join(app.config['UPLOAD_FOLDER'], unique_filenameB)
+            resumeB.save(resume_pathB)
+            resume_textB = resume_processor.extract_text_from_file(resume_pathB)
+            
+            # Extract features
+            resume_dataA = {
+                'id': 0,
+                'filename': original_filenameA,
+                'unique_filename': unique_filenameA,
+                'file_path': resume_pathA,
+                'content': resume_textA,
+                'file_size': resumeA.content_length,
+                'file_type': original_filenameA.rsplit('.', 1)[1].upper(),
+                'skills': resume_processor.extract_skills(resume_textA),
+                'experience': resume_processor.extract_experience(resume_textA),
+                'education': resume_processor.extract_education(resume_textA),
+                'contact_info': resume_processor.extract_contact_info(resume_textA),
+                'candidate_name': candidateA_name,
+                'word_count': len(resume_textA.split()) if resume_textA else 0
+            }
+            
+            resume_dataB = {
+                'id': 1,
+                'filename': original_filenameB,
+                'unique_filename': unique_filenameB,
+                'file_path': resume_pathB,
+                'content': resume_textB,
+                'file_size': resumeB.content_length,
+                'file_type': original_filenameB.rsplit('.', 1)[1].upper(),
+                'skills': resume_processor.extract_skills(resume_textB),
+                'experience': resume_processor.extract_experience(resume_textB),
+                'education': resume_processor.extract_education(resume_textB),
+                'contact_info': resume_processor.extract_contact_info(resume_textB),
+                'candidate_name': candidateB_name,
+                'word_count': len(resume_textB.split()) if resume_textB else 0
+            }
+            
+            # Perform ranking
+            ranked_resumes = resume_processor.rank_multiple_resumes(
+                [resume_dataA, resume_dataB], 
+                job_description_content
+            )
+            
+            # Store Job Description
+            job_desc_db_obj = JobDescription.query.filter(
+                JobDescription.content == job_description_content,
+                JobDescription.created_by == current_user.id
+            ).first()
+            
+            if not job_desc_db_obj:
+                job_desc_db_obj = JobDescription(
+                    title=jd_title,
+                    content=job_description_content,
+                    created_by=current_user.id
+                )
+                job_desc_db_obj.set_skills_list(resume_processor.extract_skills(job_description_content))
+                db.session.add(job_desc_db_obj)
+                db.session.flush()
+            
+            # Process results
+            results = {'candidateA': None, 'candidateB': None}
+            
+            for ranked_resume in ranked_resumes:
+                # Get original data
+                original_data = resume_dataA if ranked_resume['resume_id'] == 0 else resume_dataB
+                
+                # Save Resume to DB
+                existing_resume = Resume.query.filter(
+                    Resume.filename == original_data['unique_filename'],
+                    Resume.uploaded_by == current_user.id
+                ).first()
+                
+                if existing_resume:
+                    resume_db_obj = existing_resume
+                else:
+                    resume_db_obj = Resume(
+                        filename=original_data['unique_filename'],
+                        original_filename=original_data['filename'],
+                        file_path=original_data['file_path'],
+                        content=original_data['content'],
+                        file_size=original_data['file_size'],
+                        file_type=original_data['file_type'],
+                        experience_years=original_data['experience']
+                    )
+                    resume_db_obj.uploaded_by = current_user.id
+                    resume_db_obj.set_skills_list(original_data['skills'])
+                    resume_db_obj.set_education_list(original_data['education'])
+                    resume_db_obj.set_contact_info(original_data['contact_info'])
+                    db.session.add(resume_db_obj)
+                    db.session.flush()
+                
+                # Save Analysis
+                analysis_db_obj = ResumeAnalysis(
+                    resume_id=resume_db_obj.id,
+                    job_description_id=job_desc_db_obj.id,
+                    user_id=current_user.id,
+                    overall_score=ranked_resume['analysis']['overall_score'],
+                    skills_score=ranked_resume['analysis']['skills_score'],
+                    experience_score=ranked_resume['analysis']['experience_score'],
+                    education_score=ranked_resume['analysis']['education_score'],
+                    improvements="\n".join(resume_processor.generate_improvement_suggestions(ranked_resume['analysis'])),
+                    skill_gap_suggestions="\n".join(resume_processor.generate_skill_gap_suggestions(
+                        ranked_resume['analysis']['missing_skills'], 
+                        ranked_resume['analysis']['matched_skills']
+                    ))
+                )
+                analysis_db_obj.set_matched_skills(ranked_resume['analysis']['matched_skills'])
+                analysis_db_obj.set_missing_skills(ranked_resume['analysis']['missing_skills'])
+                db.session.add(analysis_db_obj)
+                
+                # Prepare result for display
+                candidate_key = 'candidateA' if ranked_resume['resume_id'] == 0 else 'candidateB'
+                results[candidate_key] = {
+                    'name': original_data['candidate_name'],
+                    'overall_score': round(ranked_resume['analysis']['overall_score'] * 100, 1),  # Convert to percentage
+                    'matched_skills': ranked_resume['analysis']['matched_skills'],
+                    'word_count': original_data['word_count']
+                }
+            
+            # Commit to database
             db.session.commit()
-            flash('Resumes compared and analysis saved to history!', 'success')
+            
+            # Prepare results for template
+            template_results = {
+                'score1': round(results['candidateA']['overall_score'] * 10 / 100, 1),  # Convert to 10-point scale
+                'score2': round(results['candidateB']['overall_score'] * 10 / 100, 1),  # Convert to 10-point scale
+                'keywords1': ', '.join(results['candidateA']['matched_skills']) if results['candidateA']['matched_skills'] else 'None',
+                'keywords2': ', '.join(results['candidateB']['matched_skills']) if results['candidateB']['matched_skills'] else 'None',
+                'length1': results['candidateA']['word_count'],
+                'length2': results['candidateB']['word_count'],
+                'better': results['candidateA']['name'] if results['candidateA']['overall_score'] > results['candidateB']['overall_score'] else results['candidateB']['name'],
+                'suggestion': f"{results['candidateA']['name'] if results['candidateA']['overall_score'] > results['candidateB']['overall_score'] else results['candidateB']['name']} is a better match."
+            }
+            
+            flash('Comparison completed successfully!', 'success')
+            return render_template('compare.html', results=template_results)
+            
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Database error during comparison analysis storage: {e}")
-            flash(f'An error occurred while saving comparison analysis: {e}', 'danger')
-
-        logger.info(f"Comparison resume files retained.")
-
-        # Return JSON response for frontend to update dynamically
-        return jsonify({
-            'success': True,
-            'results': {
-                'candidateA': candidate_A_analysis,
-                'candidateB': candidate_B_analysis,
-                'job_description_content': job_description_content,
-                'jd_title': jd_title
-            }
-        })
-
-    return render_template('compare.html', show_results=show_results)
-
-
+            logger.error(f"Error in compare route: {str(e)}", exc_info=True)
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return redirect(url_for('compare_resumes'))
+    
+    return render_template('compare.html')
 @app.route('/multiple', methods=['GET', 'POST'])
 @login_required
 def multiple_resumes():
     """Handles analysis and ranking of multiple resumes."""
-    ranked_results = []
-    show_results = False
-
     if request.method == 'POST':
+        # Get form data
         jd_title = request.form.get('job_title', 'Unnamed Job Description')
         job_description_content = request.form.get('job_description')
-
+        
+        # Validate job description
         if not job_description_content:
             flash('Job Description is required.', 'danger')
             return render_template('multiple_resume.html', show_results=False)
-
-        resume_files = request.files.getlist('resume_files[]')
-        if not resume_files or resume_files[0].filename == '':
+        
+        # Get uploaded files (handle both naming conventions)
+        resume_files = request.files.getlist('resume_files[]') or request.files.getlist('resume_files')
+        
+        # Validate files
+        if not resume_files or all(f.filename == '' for f in resume_files):
             flash('No resumes selected for upload.', 'danger')
             return render_template('multiple_resume.html', show_results=False)
-
-        processed_resumes_data = []
+        
+        # Process files
+        processed_resumes = []
         uploaded_paths = []
-
-        for i, resume_file in enumerate(resume_files):
+        
+        for resume_file in resume_files:
             if resume_file and allowed_file(resume_file.filename):
-                original_filename = secure_filename(resume_file.filename)
-                unique_filename = f"{secrets.token_hex(8)}_{original_filename}"
-                resume_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-
                 try:
+                    original_filename = secure_filename(resume_file.filename)
+                    unique_filename = f"{secrets.token_hex(8)}_{original_filename}"
+                    resume_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
                     resume_file.save(resume_path)
                     uploaded_paths.append(resume_path)
-
+                    
                     resume_text = resume_processor.extract_text_from_file(resume_path)
                     if not resume_text:
                         flash(f'Could not extract text from {original_filename}. Skipping.', 'warning')
                         continue
-
-                    resume_skills = resume_processor.extract_skills(resume_text)
-                    resume_experience_years = resume_processor.extract_experience(resume_text)
-                    resume_education = resume_processor.extract_education(resume_text)
-                    resume_contact_info = resume_processor.extract_contact_info(resume_text)
-
-                    processed_resumes_data.append({
-                        'id': i,
+                    
+                    processed_resumes.append({
+                        'id': len(processed_resumes),
                         'filename': original_filename,
                         'unique_filename': unique_filename,
                         'file_path': resume_path,
                         'content': resume_text,
                         'file_size': resume_file.content_length,
                         'file_type': original_filename.rsplit('.', 1)[1].upper(),
-                        'skills': resume_skills,
-                        'experience': resume_experience_years,
-                        'education': resume_education,
-                        'contact_info': resume_contact_info
+                        'skills': resume_processor.extract_skills(resume_text),
+                        'experience': resume_processor.extract_experience(resume_text),
+                        'education': resume_processor.extract_education(resume_text),
+                        'contact_info': resume_processor.extract_contact_info(resume_text)
                     })
-                except (RuntimeError, NotImplementedError, ValueError) as e:
-                    flash(f"Error processing {original_filename}: {e}. Skipping.", 'danger')
+                    
                 except Exception as e:
-                    flash(f"An unexpected error occurred with {original_filename}: {e}. Skipping.", 'danger')
+                    flash(f"Error processing {resume_file.filename}: {str(e)}", 'danger')
             else:
                 flash(f"Invalid file type for {resume_file.filename}. Allowed types are: PDF, DOCX, DOC. Skipping.", 'danger')
-
-        if not processed_resumes_data:
+        
+        # Check if we have any valid resumes
+        if not processed_resumes:
             flash('No valid resumes were processed. Please check file types.', 'danger')
             return render_template('multiple_resume.html', show_results=False)
-
-        # Perform ranking
-        ranked_resumes_analysis = resume_processor.rank_multiple_resumes(processed_resumes_data, job_description_content)
-
-        # Store Job Description (if not already existing)
-        job_desc_db_obj = JobDescription.query.filter(
-            JobDescription.content == job_description_content,
-            JobDescription.created_by == current_user.id
-        ).first()
-
-        if not job_desc_db_obj:
-            job_desc_db_obj = JobDescription(
-                title=jd_title,
-                content=job_description_content,
-                created_by=current_user.id
-            )
-            job_desc_db_obj.set_skills_list(resume_processor.extract_skills(job_description_content))
-            db.session.add(job_desc_db_obj)
-            db.session.flush()
-
-        # Save each resume and its analysis to the database
-        for ranked_resume in ranked_resumes_analysis:
-            original_data = next(item for item in processed_resumes_data if item['id'] == ranked_resume['resume_id'])
-
-            # Save Resume to DB
-            existing_resume = Resume.query.filter(
-                Resume.filename == original_data['unique_filename'],
-                Resume.uploaded_by == current_user.id
-            ).first()
-
-            if existing_resume:
-                resume_db_obj = existing_resume
-            else:
-                resume_db_obj = Resume(
-                    filename=original_data['unique_filename'],
-                    original_filename=original_data['filename'],
-                    file_path=original_data['file_path'],
-                    content=original_data['content'],
-                    file_size=original_data['file_size'],
-                    file_type=original_data['file_type'],
-                    experience_years=original_data['experience']
-                )
-                resume_db_obj.uploaded_by = current_user.id
-                resume_db_obj.set_skills_list(original_data['skills'])
-                resume_db_obj.set_education_list(original_data['education'])
-                resume_db_obj.set_contact_info(original_data['contact_info'])
-                db.session.add(resume_db_obj)
-                db.session.flush()
-
-            analysis_db_obj = ResumeAnalysis(
-                resume_id=resume_db_obj.id,
-                job_description_id=job_desc_db_obj.id,
-                user_id=current_user.id,
-                overall_score=ranked_resume['analysis']['overall_score'],
-                skills_score=ranked_resume['analysis']['skills_score'],
-                experience_score=ranked_resume['analysis']['experience_score'],
-                education_score=ranked_resume['analysis']['education_score'],
-                improvements="\n".join(resume_processor.generate_improvement_suggestions(ranked_resume['analysis'])),
-                skill_gap_suggestions="\n".join(resume_processor.generate_skill_gap_suggestions(ranked_resume['analysis']['missing_skills'], ranked_resume['analysis']['matched_skills']))
-            )
-            analysis_db_obj.set_matched_skills(ranked_resume['analysis']['matched_skills'])
-            analysis_db_obj.set_missing_skills(ranked_resume['analysis']['missing_skills'])
-            db.session.add(analysis_db_obj)
-
-            ranked_results.append({
-                'filename': original_data['filename'],
-                'overall_score': round(ranked_resume['analysis']['overall_score'] * 100, 1),
-                'rank_level': ResumeAnalysis(overall_score=ranked_resume['analysis']['overall_score']).rank_level,
-                'rank_color': ResumeAnalysis(overall_score=ranked_resume['analysis']['overall_score']).rank_color,
-                'skills_score': round(ranked_resume['analysis']['skills_score'] * 100, 1),
-                'experience_score': round(ranked_resume['analysis']['experience_score'] * 100, 1),
-                'education_score': round(ranked_resume['analysis']['education_score'] * 100, 1),
-                'matched_skills': ranked_resume['analysis']['matched_skills'],
-                'missing_skills': ranked_resume['analysis']['missing_skills'],
-                'improvements': resume_processor.generate_improvement_suggestions(ranked_resume['analysis']),
-                'skill_gap_suggestions': resume_processor.generate_skill_gap_suggestions(ranked_resume['analysis']['missing_skills'], ranked_resume['analysis']['matched_skills'])
-            })
-
+        
         try:
+            # Perform ranking
+            ranked_resumes = resume_processor.rank_multiple_resumes(processed_resumes, job_description_content)
+            
+            # Store Job Description
+            job_desc_db_obj = JobDescription.query.filter(
+                JobDescription.content == job_description_content,
+                JobDescription.created_by == current_user.id
+            ).first()
+            
+            if not job_desc_db_obj:
+                job_desc_db_obj = JobDescription(
+                    title=jd_title,
+                    content=job_description_content,
+                    created_by=current_user.id
+                )
+                job_desc_db_obj.set_skills_list(resume_processor.extract_skills(job_description_content))
+                db.session.add(job_desc_db_obj)
+                db.session.flush()
+            
+            # Save results
+            rankings = []  # Changed variable name to match template
+            
+            for i, ranked_resume in enumerate(ranked_resumes):
+                original_data = processed_resumes[ranked_resume['resume_id']]
+                
+                # Save Resume to DB
+                existing_resume = Resume.query.filter(
+                    Resume.filename == original_data['unique_filename'],
+                    Resume.uploaded_by == current_user.id
+                ).first()
+                
+                if existing_resume:
+                    resume_db_obj = existing_resume
+                else:
+                    resume_db_obj = Resume(
+                        filename=original_data['unique_filename'],
+                        original_filename=original_data['filename'],
+                        file_path=original_data['file_path'],
+                        content=original_data['content'],
+                        file_size=original_data['file_size'],
+                        file_type=original_data['file_type'],
+                        experience_years=original_data['experience']
+                    )
+                    resume_db_obj.uploaded_by = current_user.id
+                    resume_db_obj.set_skills_list(original_data['skills'])
+                    resume_db_obj.set_education_list(original_data['education'])
+                    resume_db_obj.set_contact_info(original_data['contact_info'])
+                    db.session.add(resume_db_obj)
+                    db.session.flush()
+                
+                # Save Analysis
+                analysis_db_obj = ResumeAnalysis(
+                    resume_id=resume_db_obj.id,
+                    job_description_id=job_desc_db_obj.id,
+                    user_id=current_user.id,
+                    overall_score=ranked_resume['analysis']['overall_score'],
+                    skills_score=ranked_resume['analysis']['skills_score'],
+                    experience_score=ranked_resume['analysis']['experience_score'],
+                    education_score=ranked_resume['analysis']['education_score'],
+                    improvements="\n".join(resume_processor.generate_improvement_suggestions(ranked_resume['analysis'])),
+                    skill_gap_suggestions="\n".join(resume_processor.generate_skill_gap_suggestions(
+                        ranked_resume['analysis']['missing_skills'], 
+                        ranked_resume['analysis']['matched_skills']
+                    ))
+                )
+                analysis_db_obj.set_matched_skills(ranked_resume['analysis']['matched_skills'])
+                analysis_db_obj.set_missing_skills(ranked_resume['analysis']['missing_skills'])
+                db.session.add(analysis_db_obj)
+                
+                # Prepare result for display
+                rankings.append({
+                    'rank_position': i + 1,  # Add rank position
+                    'resume_id': resume_db_obj.id,
+                    'analysis_id': analysis_db_obj.id,  # Add analysis ID for view details
+                    'filename': original_data['filename'],
+                    'overall_score': round(ranked_resume['analysis']['overall_score'] * 100, 1),
+                    'rank_level': ResumeAnalysis(overall_score=ranked_resume['analysis']['overall_score']).rank_level,
+                    'rank_color': ResumeAnalysis(overall_score=ranked_resume['analysis']['overall_score']).rank_color,
+                    'skills_score': round(ranked_resume['analysis']['skills_score'] * 100, 1),
+                    'experience_score': round(ranked_resume['analysis']['experience_score'] * 100, 1),
+                    'education_score': round(ranked_resume['analysis']['education_score'] * 100, 1),
+                    'matched_skills': ranked_resume['analysis']['matched_skills'],
+                    'missing_skills': ranked_resume['analysis']['missing_skills'],
+                    'improvements': resume_processor.generate_improvement_suggestions(ranked_resume['analysis']),
+                    'skill_gap_suggestions': resume_processor.generate_skill_gap_suggestions(
+                        ranked_resume['analysis']['missing_skills'], 
+                        ranked_resume['analysis']['matched_skills']
+                    ),
+                    'analysis': {  # Add analysis object for template
+                        'overall_score': ranked_resume['analysis']['overall_score'],
+                        'skills_score': ranked_resume['analysis']['skills_score'],
+                        'experience_score': ranked_resume['analysis']['experience_score'],
+                        'education_score': ranked_resume['analysis']['education_score']
+                    }
+                })
+            
+            # Commit to database
             db.session.commit()
             flash('Multiple resumes analyzed and ranked successfully!', 'success')
+            
+            # Render results
+            return render_template(
+                'multiple_resume.html',
+                show_results=True,
+                job_description_content=job_description_content,
+                job_title=job_desc_db_obj.title,  # Changed from jd_title to job_title
+                rankings=rankings  # Changed variable name to match template
+            )
+            
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Database error during multiple resume analysis storage: {e}")
-            flash(f'An error occurred while saving analysis: {e}', 'danger')
-
-        logger.info(f"Multiple resume files retained.")
-        show_results = True
-        return render_template(
-            'multiple_resume.html',
-            show_results=show_results,
-            job_description_content=job_description_content,
-            jd_title=job_desc_db_obj.title,
-            ranked_results=ranked_results
-        )
-
-    return render_template('multiple_resume.html', show_results=show_results)
+            logger.error(f"Error in multiple route: {str(e)}", exc_info=True)
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return render_template('multiple_resume.html', show_results=False)
+    
+    return render_template('multiple_resume.html', show_results=False)
 
 @app.route('/history')
 @login_required
@@ -714,10 +723,8 @@ def history():
     analyses = ResumeAnalysis.query.options(
         joinedload(ResumeAnalysis.resume),
         joinedload(ResumeAnalysis.job_description)
-    ).filter_by(user_id=current_user.id).order_by(ResumeAnalysis.timestamp.desc()).all()
-
+    ).filter_by(user_id=current_user.id).order_by(ResumeAnalysis.created_at.desc()).all()
     return render_template('history.html', title='Analysis History', analyses=analyses)
-
 @app.route('/analysis/<int:analysis_id>')
 @login_required
 def view_analysis(analysis_id):
